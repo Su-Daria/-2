@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#8FAE8B">
+<title>Приключения Змейки. Звук Ш — логопедическая игра</title>
+<style>
+/* ===== Базовые стили и палитра волшебного сада ===== */
+:root{
+  --sage:#8FAE8B; --sage-dark:#5F8560; --sage-deep:#3E6145;
+  --mint:#C9E4D6; --mint-light:#E8F4EA;
+  --cream:#FFF8EC; --cream-dark:#F6EAD2;
+  --honey:#E9C46A; --honey-dark:#D9A441;
+  --sky:#A8D8EA; --sky-light:#DFF3FB;
+  --terra:#D98C6A; --terra-dark:#C06A45;
+  --ink:#33463A; --ink-soft:#5B7263;
+  --rose:#F2A9A2; --leaf:#A9C98B;
+  --shadow:0 10px 24px rgba(62,97,69,.16), 0 2px 6px rgba(62,97,69,.12);
+  --shadow-sm:0 4px 12px rgba(62,97,69,.14);
+  --radius:24px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{
+  font-family:"Trebuchet MS","Segoe UI",Verdana,system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,var(--sky-light) 0%,#EFF7EE 34%,var(--cream) 100%);
+  min-height:100vh;min-height:100dvh;
+  -webkit-text-size-adjust:100%;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
+svg{display:block;max-width:100%}
+.app{max-width:1020px;margin:0 auto;padding:14px 14px 34px;position:relative}
+
+/* ===== Экраны ===== */
+.screen{display:none}
+.screen.active{display:block;animation:screenIn .35s ease both}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== Кнопки ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:12px 22px;border-radius:999px;
+  font-size:18px;font-weight:700;color:var(--ink);
+  background:var(--cream);border:2px solid var(--sage);
+  box-shadow:var(--shadow-sm);transition:transform .12s ease,box-shadow .12s ease,background .15s;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;text-align:center;line-height:1.15;
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(180deg,#F2D68A,var(--honey));border-color:var(--honey-dark);color:#5C4210}
+.btn-green{background:linear-gradient(180deg,#A9C98B,#7FA96E);border-color:var(--sage-dark);color:#22402A}
+.btn-terra{background:linear-gradient(180deg,#EDB096,var(--terra));border-color:var(--terra-dark);color:#5E2E18}
+.btn-big{font-size:clamp(20px,5.5vw,26px);min-height:62px;padding:16px 36px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn .ic{width:22px;height:22px;flex:0 0 auto}
+.icon-btn{
+  width:48px;height:48px;min-height:48px;border-radius:50%;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--cream);border:2px solid var(--sage);box-shadow:var(--shadow-sm);flex:0 0 auto;
+}
+.icon-btn:active{transform:scale(.93)}
+.icon-btn svg{width:24px;height:24px}
+
+/* ===== Шапка экрана задания ===== */
+.task-top{display:flex;align-items:center;gap:10px;margin:4px 0 10px}
+.task-top .spacer{flex:1}
+.progress-stars{display:flex;gap:5px;align-items:center;background:rgba(255,248,236,.85);
+  border:2px solid var(--cream-dark);border-radius:999px;padding:6px 12px;box-shadow:var(--shadow-sm)}
+.progress-stars .lbl{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.pstar{width:20px;height:20px;opacity:.28;transition:opacity .3s,transform .3s}
+.pstar.on{opacity:1;transform:scale(1.12)}
+.task-badge{display:inline-block;background:var(--mint);color:var(--sage-deep);font-weight:700;
+  font-size:14px;border-radius:999px;padding:5px 14px;border:2px solid #fff3;box-shadow:var(--shadow-sm)}
+h1.title{font-size:clamp(26px,6.4vw,40px);margin:6px 0 4px;text-align:center;color:var(--sage-deep);line-height:1.12;letter-spacing:.2px}
+h2.task-title{font-size:clamp(22px,5.4vw,32px);margin:6px 0 4px;text-align:center;color:var(--sage-deep);line-height:1.15}
+.subtitle{text-align:center;font-size:clamp(15px,4vw,19px);color:var(--ink-soft);margin:2px auto 12px;max-width:640px;line-height:1.35}
+.center{text-align:center}
+
+/* ===== Змейка-помощница с облачком ===== */
+.helper{display:flex;align-items:flex-end;gap:6px;max-width:680px;margin:8px auto 14px}
+.helper .helper-snake{width:92px;flex:0 0 auto}
+.bubble{
+  position:relative;flex:1;background:#fff;border:2px solid var(--mint);border-radius:20px;
+  padding:12px 14px;font-size:clamp(15px,4vw,18px);line-height:1.4;box-shadow:var(--shadow-sm);
+}
+.bubble::before{content:"";position:absolute;left:-11px;bottom:22px;width:18px;height:18px;background:#fff;
+  border-left:2px solid var(--mint);border-bottom:2px solid var(--mint);transform:rotate(45deg);border-bottom-left-radius:5px}
+.bubble b{color:var(--sage-deep)}
+.bubble .say-sh{font-weight:800;color:var(--terra-dark);letter-spacing:1px}
+
+/* ===== Панели и карточки ===== */
+.panel{background:rgba(255,248,236,.92);border:2px solid #fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.scene-frame{position:relative;border-radius:var(--radius);overflow:hidden;border:3px solid #fff;box-shadow:var(--shadow);background:var(--mint-light)}
+.scene-frame svg{width:100%;height:auto}
+.controls-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px}
+.controls-row .btn{flex:1 1 160px;max-width:320px}
+.feedback{min-height:30px;text-align:center;font-size:clamp(16px,4.4vw,20px);font-weight:700;color:var(--sage-deep);margin:12px 6px 2px;line-height:1.3}
+.feedback.pop{animation:popIn .35s ease both}
+@keyframes popIn{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.next-wrap{display:none;text-align:center;margin-top:10px}
+.next-wrap.show{display:block;animation:popIn .4s ease both}
+
+/* ===== Стартовый экран ===== */
+.start-hero{margin-top:6px}
+.start-hero svg{width:100%;height:auto;border-radius:26px}
+.start-card{max-width:820px;margin:0 auto;background:rgba(255,248,236,.9);border:3px solid #fff;border-radius:28px;box-shadow:var(--shadow);padding:10px 14px 22px}
+.story{text-align:center;max-width:620px;margin:6px auto 14px;font-size:clamp(15px,4vw,18px);line-height:1.5;color:var(--ink-soft)}
+.grownups{margin:18px auto 0;max-width:700px;background:#fff;border:2px dashed var(--sage);border-radius:18px;padding:12px 16px;font-size:13.5px;line-height:1.55;color:var(--ink-soft)}
+.grownups b{color:var(--sage-deep)}
+
+/* ===== Карта приключений ===== */
+.map-wrap{position:relative;max-width:860px;margin:0 auto}
+.map-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:12px}
+@media(min-width:720px){.map-grid{grid-template-columns:1fr 1fr}.map-card.wide{grid-column:1/-1}}
+.map-card{
+  display:flex;gap:14px;align-items:center;text-align:left;width:100%;
+  background:linear-gradient(135deg,#fff,var(--cream));border:3px solid var(--mint);
+  border-radius:24px;padding:14px;box-shadow:var(--shadow-sm);min-height:112px;
+  transition:transform .12s ease,border-color .2s;position:relative;
+}
+.map-card:active{transform:scale(.98)}
+.map-card .num{position:absolute;top:-10px;left:-6px;width:36px;height:36px;border-radius:50%;
+  background:var(--honey);border:2px solid #fff;color:#5C4210;font-weight:800;font-size:18px;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+.map-card .pic{width:88px;height:88px;flex:0 0 auto;background:var(--mint-light);border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.map-card .pic svg{width:84px;height:84px}
+.map-card h3{margin:0 0 4px;font-size:clamp(16px,4.4vw,20px);color:var(--sage-deep);line-height:1.2}
+.map-card p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.35}
+.map-card .done-badge{position:absolute;top:10px;right:10px;display:none;align-items:center;gap:5px;
+  background:#7FA96E;color:#fff;font-weight:700;font-size:13px;padding:4px 11px;border-radius:999px}
+.map-card.done{border-color:#7FA96E;background:linear-gradient(135deg,#F2F9ED,var(--cream))}
+.map-card.done .done-badge{display:inline-flex}
+.map-card .go{margin-top:8px;display:inline-block;background:var(--mint);border-radius:999px;padding:4px 14px;font-weight:700;font-size:14px;color:var(--sage-deep)}
+.map-card.done .go{background:#DCECCF}
+.finish-btn-wrap{display:none;text-align:center;margin-top:20px}
+.finish-btn-wrap.show{display:block;animation:popIn .45s ease both}
+
+/* ===== Задание 1: гимнастика ===== */
+.ex-dots{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+.ex-dot{width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid var(--mint);
+  font-weight:800;font-size:14px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;position:relative;transition:all .2s;padding:0}
+.ex-dot.current{border-color:var(--honey-dark);background:var(--honey);color:#5C4210;transform:scale(1.14)}
+.ex-dot.done{background:#7FA96E;border-color:var(--sage-dark);color:#fff}
+.ex-card{max-width:640px;margin:12px auto 0;background:linear-gradient(180deg,#fff,var(--cream));
+  border:3px solid #fff;border-radius:26px;box-shadow:var(--shadow);padding:14px 14px 18px;text-align:center;position:relative}
+.ex-card .ex-scene{background:linear-gradient(180deg,var(--sky-light),var(--mint-light) 70%,#DCEEDC);border-radius:20px;overflow:hidden}
+.ex-card .ex-scene svg{width:100%;height:auto}
+.ex-name{font-size:clamp(22px,5.6vw,28px);color:var(--sage-deep);margin:14px 0 4px}
+.ex-how{font-size:clamp(16px,4.4vw,19px);line-height:1.45;color:var(--ink);max-width:520px;margin:0 auto}
+.ex-done-mark{position:absolute;top:12px;right:12px;display:none;background:#7FA96E;color:#fff;font-weight:700;
+  padding:6px 13px;border-radius:999px;font-size:14px;box-shadow:var(--shadow-sm);z-index:2}
+.ex-card.is-done .ex-done-mark{display:inline-flex;animation:popIn .3s ease both}
+.ex-nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.ex-nav .btn{flex:1 1 140px;max-width:250px}
+.ex-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-width:760px;margin:20px auto 0}
+.ex-mini{background:#fff;border:2px solid var(--mint);border-radius:16px;padding:10px 6px 8px;font-weight:700;font-size:14px;color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;gap:4px;min-height:76px;justify-content:center;box-shadow:var(--shadow-sm);position:relative}
+.ex-mini:active{transform:scale(.96)}
+.ex-mini.current{border-color:var(--honey-dark);background:#FFF6DE}
+.ex-mini .tick{display:none;color:#fff;background:#7FA96E;border-radius:999px;padding:1px 9px;font-size:12px}
+.ex-mini.done .tick{display:inline-block}
+.ex-mini.done{border-color:#7FA96E}
+
+/* ===== Задание 2: найди звук ===== */
+.pic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:14px;max-width:900px;margin:14px auto 0}
+@media(min-width:900px){.pic-grid{grid-template-columns:repeat(4,1fr)}}
+.pic-card{position:relative;background:#fff;border:3px solid var(--cream-dark);border-radius:20px;padding:10px 8px 8px;
+  box-shadow:var(--shadow-sm);transition:border-color .25s,transform .15s,box-shadow .25s;text-align:center}
+.pic-card:active{transform:scale(.97)}
+.pic-card .pic-art{border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#F4FAF4,#EAF4EA)}
+.pic-card .pic-art svg{width:100%;height:auto;filter:saturate(.32) brightness(1.06);opacity:.82;transition:filter .5s ease,opacity .5s ease,transform .4s ease}
+.pic-card .word{font-weight:800;font-size:clamp(16px,4.4vw,19px);margin-top:8px;color:var(--ink);letter-spacing:.4px}
+.pic-card .word .sh{color:inherit}
+.pic-card.found{border-color:#7FA96E;box-shadow:0 0 0 3px #CFE7C3,var(--shadow-sm)}
+.pic-card.found .pic-art svg{filter:saturate(1.15) brightness(1);opacity:1;transform:scale(1.04)}
+.pic-card.found .word .sh{color:var(--terra-dark)}
+.pic-card .check{position:absolute;top:-9px;right:-7px;width:34px;height:34px;border-radius:50%;background:#7FA96E;border:2px solid #fff;
+  display:none;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+.pic-card.found .check{display:flex;animation:popIn .3s ease both}
+.pic-card.wrong{animation:wiggle .45s ease}
+@keyframes wiggle{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-1.2deg)}40%{transform:translateX(6px) rotate(1.2deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.say-btn{position:absolute;left:8px;bottom:8px;width:40px;height:40px;border-radius:50%;background:var(--sky-light);
+  border:2px solid var(--sky);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);padding:0}
+.say-btn svg{width:20px;height:20px}
+.say-btn:active{transform:scale(.92)}
+.found-meter{max-width:520px;margin:16px auto 0;text-align:center;font-weight:700;font-size:17px;color:var(--sage-deep)}
+.meter{height:16px;background:#fff;border:2px solid var(--mint);border-radius:999px;overflow:hidden;margin-top:6px}
+.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--leaf),#7FA96E);border-radius:999px;transition:width .45s ease}
+
+/* ===== Задание 3: листочки ===== */
+.leaves-scene{position:relative;border-radius:var(--radius);overflow:hidden;border:3px solid #fff;box-shadow:var(--shadow);
+  background:linear-gradient(180deg,#FBEED3 0%,#F6E3BE 30%,#EFE3C8 100%);aspect-ratio:4/3;max-height:560px;margin:0 auto;max-width:820px;
+  touch-action:none;user-select:none;-webkit-user-select:none}
+.leaves-scene .bg-svg{position:absolute;inset:0;width:100%;height:100%}
+.leaf{position:absolute;width:clamp(46px,10vw,74px);height:auto;cursor:grab;will-change:transform,left,top;
+  filter:drop-shadow(0 3px 3px rgba(90,60,20,.28));touch-action:none;animation:leafSway 3.2s ease-in-out infinite alternate}
+.leaf svg{width:100%;height:auto;pointer-events:none}
+.leaf.dragging{animation:none;cursor:grabbing;z-index:6}
+.leaf.gone{pointer-events:none}
+@keyframes leafSway{from{margin-top:0}to{margin-top:-5px}}
+.wind-lines{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;z-index:4}
+.wind-lines.on{opacity:1}
+.wind-lines path{stroke:#fff;stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:70 220;animation:windMove 1s linear infinite;opacity:.85}
+@keyframes windMove{from{stroke-dashoffset:290}to{stroke-dashoffset:0}}
+.mode-panel{max-width:720px;margin:12px auto 0}
+.mode-panel .btn{min-width:200px}
+.note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;text-align:center;max-width:640px;margin:10px auto 0}
+.mic-meter-wrap{max-width:520px;margin:14px auto 0;display:none;text-align:center}
+.mic-meter-wrap.show{display:block}
+.mic-meter{height:18px;background:#fff;border:2px solid var(--mint);border-radius:999px;overflow:hidden;position:relative}
+.mic-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--sky),#7FB6D9);transition:width .08s linear}
+.mic-meter.blowing .mic-fill{background:linear-gradient(90deg,var(--honey),var(--terra))}
+.leaves-left{font-weight:700;color:var(--sage-deep);font-size:17px;text-align:center;margin-top:12px}
+
+/* ===== Задания 4–5: лабиринты и тропинки ===== */
+.maze-frame{max-width:860px;margin:0 auto}
+.maze-frame svg{touch-action:none;user-select:none;-webkit-user-select:none}
+.sh-banner{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:10px auto 12px}
+.sh-big{font-size:clamp(30px,8vw,46px);font-weight:800;letter-spacing:4px;color:var(--terra-dark);
+  background:#fff;border:3px solid var(--honey);border-radius:18px;padding:4px 22px;box-shadow:var(--shadow-sm)}
+.sh-big.pulse{animation:shPulse 1.6s ease-in-out infinite}
+@keyframes shPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.route-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:12px auto 0;max-width:760px}
+.route-chip{display:flex;align-items:center;gap:9px;background:#fff;border:2.5px solid var(--mint);border-radius:999px;
+  padding:7px 16px 7px 9px;font-weight:700;font-size:15px;min-height:48px;box-shadow:var(--shadow-sm)}
+.route-chip .swatch{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.12)}
+.route-chip.active{border-color:var(--honey-dark);background:#FFF6DE}
+.route-chip.done{border-color:#7FA96E;background:#F2F9ED}
+.route-chip .tick{display:none;color:#7FA96E;font-weight:800}
+.route-chip.done .tick{display:inline}
+.route-chip:active{transform:scale(.96)}
+
+/* ===== Модальное окно подсказки ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(51,70,58,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}
+.modal-overlay.show{display:flex;animation:screenIn .25s ease both}
+.modal{background:var(--cream);border:3px solid #fff;border-radius:26px;box-shadow:var(--shadow);max-width:460px;width:100%;padding:22px 20px;text-align:center}
+.modal h3{margin:0 0 8px;color:var(--sage-deep);font-size:24px}
+.modal p{line-height:1.5;font-size:16px}
+.modal .modal-snake{width:190px;margin:6px auto}
+
+/* ===== Всплывающее сообщение (тост) ===== */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:70;
+  background:var(--sage-deep);color:#fff;font-weight:700;font-size:16px;padding:13px 24px;border-radius:999px;
+  box-shadow:var(--shadow);transition:all .3s ease;pointer-events:none;max-width:88vw;text-align:center;line-height:1.3}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ===== Конфетти ===== */
+.confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:55;overflow:hidden}
+.confetti-piece{position:absolute;top:-40px;will-change:transform;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(110vh) rotate(680deg)}}
+
+/* ===== Анимации Змейки (SVG) ===== */
+.sn-head{transform-origin:200px 120px;animation:headBob 3.4s ease-in-out infinite}
+@keyframes headBob{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(1.6deg) translateY(-3px)}}
+.sn-eyes{transform-origin:200px 62px;animation:blink 4.6s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+.sn-tongue{transform-origin:200px 100px;animation:tongueFlick 3s ease-in-out infinite}
+@keyframes tongueFlick{0%,55%,100%{transform:scaleY(.25);opacity:.0}65%,85%{transform:scaleY(1);opacity:1}}
+.sn-tongue-always{transform-origin:200px 98px;animation:tongueWag 2.2s ease-in-out infinite}
+@keyframes tongueWag{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.tongue-updown{animation:upDown 1.8s ease-in-out infinite}
+@keyframes upDown{0%,100%{transform:translateY(6px)}50%{transform:translateY(-14px)}}
+.tongue-swing{animation:swingUD 2.4s ease-in-out infinite}
+@keyframes swingUD{0%,16%{transform:translateY(7px)}50%,66%{transform:translateY(-7px)}100%{transform:translateY(7px)}}
+.tongue-swingp{transform-origin:204px 107px;animation:swingP 2.6s ease-in-out infinite}
+@keyframes swingP{0%,18%{transform:rotate(18deg)}50%,68%{transform:rotate(-14deg)}100%{transform:rotate(18deg)}}
+.tongue-lick{transform-origin:200px 96px;animation:lick 1.7s ease-in-out infinite}
+@keyframes lick{0%,100%{transform:translateY(4px) rotate(0deg)}40%{transform:translateY(-9px) rotate(-3deg)}70%{transform:translateY(-9px) rotate(3deg)}}
+.tongue-fb{animation:forthBack 1.9s ease-in-out infinite}
+@keyframes forthBack{0%,100%{transform:translateX(-7px)}50%{transform:translateX(7px)}}
+.tongue-click{transform-origin:200px 100px;animation:clickT 1.4s ease-in-out infinite}
+@keyframes clickT{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+/* движения языка в артикуляционной гимнастике */
+.tongue-hold{animation:holdStill 3s ease-in-out infinite}
+@keyframes holdStill{0%,100%{transform:translateY(0)}50%{transform:translateY(1.6px)}}
+.tongue-lick2{animation:lickDown 1.9s ease-in-out infinite}
+@keyframes lickDown{0%,100%{transform:translateY(-6px)}45%,62%{transform:translateY(3.5px)}}
+.tongue-paint{animation:paintTongue 2.1s ease-in-out infinite}
+@keyframes paintTongue{0%,100%{transform:translateX(-9px)}50%{transform:translateX(9px)}}
+.tongue-horseclick{animation:horseClick 1.9s ease-in-out infinite}
+@keyframes horseClick{0%{transform:translateY(2.5px)}16%{transform:translateY(-5px)}55%{transform:translateY(-5px)}63%{transform:translateY(2.5px)}100%{transform:translateY(2.5px)}}
+.anim-swing{transform-origin:92px 66px;animation:swingMove 2.6s ease-in-out infinite}
+@keyframes swingMove{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.anim-rock{transform-origin:110px 240px;animation:rockMove 2.2s ease-in-out infinite}
+@keyframes rockMove{0%,100%{transform:rotate(-3.4deg)}50%{transform:rotate(3.4deg)}}
+.anim-brush{animation:brushMove 1.5s ease-in-out infinite}
+@keyframes brushMove{0%,100%{transform:translate(0,0) rotate(-24deg)}50%{transform:translate(4px,-9px) rotate(-19deg)}}
+.anim-paintbrush{animation:paintMove 2.1s ease-in-out infinite}
+@keyframes paintMove{0%,100%{transform:translate(0,-8px) rotate(8deg)}50%{transform:translate(2px,12px) rotate(14deg)}}
+.anim-steam{animation:steamUp 2.4s ease-in-out infinite}
+@keyframes steamUp{0%,100%{transform:translateY(3px);opacity:.55}50%{transform:translateY(-5px);opacity:.95}}
+.anim-blin{transform-origin:105px 196px;animation:blinFlip 3s ease-in-out infinite}
+@keyframes blinFlip{0%,70%,100%{transform:translateY(0)}82%{transform:translateY(-16px) rotate(-6deg)}90%{transform:translateY(0)}}
+.sn-cheeks{transition:opacity .25s}
+.floaty{animation:floaty 3.6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.cloud-drift{animation:cloudDrift 13s ease-in-out infinite alternate}
+@keyframes cloudDrift{from{transform:translateX(-8px)}to{transform:translateX(16px)}}
+.flutter{animation:flutter 5s ease-in-out infinite}
+@keyframes flutter{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(10px,-9px) rotate(6deg)}55%{transform:translate(20px,-2px) rotate(-5deg)}78%{transform:translate(8px,-12px) rotate(4deg)}}
+.door{transition:transform .6s ease;transform-origin:left center}
+.door.open{transform:perspective(300px) rotateY(-62deg)}
+.crawl-snake{transition:transform .05s linear}
+.house-glow{opacity:0;transition:opacity .5s}
+.house-glow.on{opacity:1}
+
+/* ===== Финальный экран ===== */
+.final-card{max-width:840px;margin:0 auto;background:rgba(255,248,236,.92);border:3px solid #fff;border-radius:28px;box-shadow:var(--shadow);padding:12px 14px 24px;text-align:center}
+.award{display:inline-flex;align-items:center;gap:12px;background:linear-gradient(180deg,#FFF3CF,#F8E3A1);
+  border:2.5px solid var(--honey-dark);border-radius:20px;padding:12px 20px;margin:14px auto 4px;box-shadow:var(--shadow-sm)}
+.award svg{width:46px;height:46px}
+.award .award-txt{text-align:left}
+.award .award-txt b{display:block;font-size:19px;color:#7A5510}
+.award .award-txt span{font-size:14px;color:#8A6A2A}
+.final-list{list-style:none;padding:0;margin:18px auto 4px;max-width:460px;text-align:left}
+.final-list li{display:flex;align-items:center;gap:11px;background:#fff;border:2px solid var(--mint);border-radius:14px;padding:10px 14px;margin-bottom:9px;font-weight:600;font-size:16px}
+.final-list .li-check{width:28px;height:28px;border-radius:50%;background:#E8F4EA;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.final-list li.done .li-check{background:#7FA96E}
+.final-list li.done .li-check svg path{stroke:#fff}
+
+/* ===== Прочее ===== */
+.hidden{display:none!important}
+.footer-note{text-align:center;color:var(--ink-soft);font-size:12.5px;margin-top:26px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media(max-width:420px){
+  .helper .helper-snake{width:74px}
+  .map-card .pic{width:72px;height:72px}
+  .map-card .pic svg{width:68px;height:68px}
+  .controls-row .btn{flex:1 1 130px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ================= СТАРТОВЫЙ ЭКРАН ================= -->
+  <section class="screen active" id="screen-start">
+    <div class="start-card">
+      <h1 class="title">Приключения Змейки.<br>Звук Ш</h1>
+      <p class="subtitle" style="margin-bottom:10px">Играем, тренируемся и помогаем Змейке!</p>
+      <div class="start-hero" id="start-hero"></div>
+      <p class="story">Маленькая Змейка отправляется в путешествие по волшебному саду.
+        Чтобы добраться до своего уютного домика, ей нужно пройти <b>пять весёлых испытаний</b>.
+        Поможешь ей?</p>
+      <div class="center">
+        <button class="btn btn-primary btn-big" id="btn-start">Начать игру</button>
+      </div>
+      <div class="grownups">
+        <b>Для взрослых:</b> игра готовит артикуляционный аппарат ребёнка к постановке звука [Ш]:
+        развивает артикуляционную моторику, речевое дыхание, фонематический слух и навык длительного
+        изолированного произнесения «Ш-Ш-Ш». Выполняйте задания вместе с ребёнком перед экраном,
+        хвалите за старание. Игра не оценивает произношение автоматически — это делает взрослый рядом.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= КАРТА ПРИКЛЮЧЕНИЙ ================= -->
+  <section class="screen" id="screen-map">
+    <div class="task-top">
+      <button class="icon-btn" id="btn-map-home" aria-label="На стартовый экран" title="На начало">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#3E6145" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="spacer"></div>
+      <div class="progress-stars" data-progress></div>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Карта приключения</h2>
+    <p class="subtitle">Помоги Змейке дойти до домика — выполни пять заданий в волшебном саду!</p>
+    <div class="map-wrap">
+      <div class="map-grid" id="map-grid"></div>
+      <div class="finish-btn-wrap" id="finish-btn-wrap">
+        <button class="btn btn-primary btn-big" id="btn-to-final">К домику Змейки!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ЗАДАНИЕ 1: ГИМНАСТИКА ================= -->
+  <section class="screen" id="screen-task1">
+    <div class="task-top">
+      <button class="btn" data-goto="map" style="min-height:48px;padding:8px 18px;font-size:16px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" stroke="#3E6145" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        На карту</button>
+      <div class="spacer"></div>
+      <span class="task-badge">Задание 1 из 5</span>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Повторяй за Змейкой!</h2>
+    <p class="subtitle">Смотри, как Змейка выполняет упражнение, и повторяй за ней.</p>
+    <div class="helper">
+      <div class="helper-snake" data-helper-snake></div>
+      <div class="bubble" id="t1-bubble">Сначала разомнём язычок! Делай упражнения вместе со мной — и нажимай <b>«Я выполнил!»</b>.</div>
+    </div>
+    <div class="ex-dots" id="ex-dots"></div>
+    <div class="ex-card" id="ex-card">
+      <span class="ex-done-mark">Выполнено ✓</span>
+      <div class="ex-scene" id="ex-scene"></div>
+      <h3 class="ex-name" id="ex-name"></h3>
+      <p class="ex-how" id="ex-how"></p>
+      <div class="ex-nav">
+        <button class="btn" id="ex-prev">← Назад</button>
+        <button class="btn btn-primary" id="ex-done-btn">Я выполнил!</button>
+        <button class="btn" id="ex-next">Следующее упражнение →</button>
+      </div>
+    </div>
+    <div class="ex-mini-grid" id="ex-mini-grid"></div>
+    <div class="feedback" id="t1-feedback"></div>
+    <div class="next-wrap" id="t1-next">
+      <button class="btn btn-green btn-big" data-next="1">Отлично! Переходим дальше →</button>
+    </div>
+  </section>
+
+  <!-- ================= ЗАДАНИЕ 2: НАЙДИ ЗВУК Ш ================= -->
+  <section class="screen" id="screen-task2">
+    <div class="task-top">
+      <button class="btn" data-goto="map" style="min-height:48px;padding:8px 18px;font-size:16px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" stroke="#3E6145" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        На карту</button>
+      <div class="spacer"></div>
+      <span class="task-badge">Задание 2 из 5</span>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Раскрась только те картинки, в которых есть звук Ш</h2>
+    <div class="helper">
+      <div class="helper-snake" data-helper-snake></div>
+      <div class="bubble">Нажимай на картинки, в названиях которых слышится <span class="say-sh">Ш</span>.
+        Правильные картинки будут раскрашиваться! Слушай слово внимательно: <span class="say-sh">ш-ш-ш</span>.</div>
+    </div>
+    <div class="pic-grid" id="pic-grid"></div>
+    <div class="found-meter"><span id="found-text">Найдено: 0 из 6</span>
+      <div class="meter"><div class="meter-fill" id="found-fill"></div></div>
+    </div>
+    <div class="feedback" id="t2-feedback"></div>
+    <div class="controls-row">
+      <button class="btn" id="t2-reset">Начать заново</button>
+    </div>
+    <div class="next-wrap" id="t2-next">
+      <button class="btn btn-green btn-big" data-next="2">Отлично! Переходим дальше →</button>
+    </div>
+  </section>
+
+  <!-- ================= ЗАДАНИЕ 3: ЛИСТОЧКИ ================= -->
+  <section class="screen" id="screen-task3">
+    <div class="task-top">
+      <button class="btn" data-goto="map" style="min-height:48px;padding:8px 18px;font-size:16px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" stroke="#3E6145" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        На карту</button>
+      <div class="spacer"></div>
+      <span class="task-badge">Задание 3 из 5</span>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Подуй на листочки!</h2>
+    <div class="helper">
+      <div class="helper-snake" data-helper-snake></div>
+      <div class="bubble" id="t3-bubble">Осенью в саду опали листочки. Помоги мне убрать их с дорожки!
+        Сделай спокойный <b>вдох носом</b> и плавно <b>подуй</b> на листочки: ф-ф-ф…</div>
+    </div>
+
+    <div class="leaves-scene" id="leaves-scene">
+      <div class="bg-svg" id="leaves-bg"></div>
+      <svg class="wind-lines" id="wind-lines" viewBox="0 0 800 600" preserveAspectRatio="none">
+        <path d="M90 190 C 260 160, 430 210, 620 175"/>
+        <path d="M80 300 C 280 270, 460 320, 660 285"/>
+        <path d="M100 410 C 290 385, 470 425, 640 395"/>
+      </svg>
+      <div id="leaves-layer"></div>
+    </div>
+
+    <div class="leaves-left" id="leaves-left"></div>
+
+    <div class="mode-panel panel" id="t3-mode-panel">
+      <p class="center" style="margin:0 0 12px;font-size:16.5px;line-height:1.45"><b>Как будем дуть на листочки?</b><br>
+      Включи микрофон — и по-настоящему дуй на экран плавно и долго. А если микрофон недоступен,
+      можно сдвигать листочки пальцем.</p>
+      <div class="controls-row" style="margin-top:0">
+        <button class="btn btn-primary" id="btn-mic-on">Включить микрофон</button>
+        <button class="btn" id="btn-manual">Продолжить без микрофона</button>
+      </div>
+      <p class="note">Микрофон реагирует на звук выдоха, но не может достоверно отличить дуновение
+        от других звуков (голоса, хлопков). Звук обрабатывается только на вашем устройстве и никуда не записывается.</p>
+    </div>
+
+    <div class="mic-meter-wrap" id="mic-meter-wrap">
+      <div style="font-weight:700;color:var(--sage-deep);margin-bottom:6px" id="mic-status">Микрофон включён. Вдохни носом и плавно дуй!</div>
+      <div class="mic-meter" id="mic-meter"><div class="mic-fill" id="mic-fill"></div></div>
+      <div class="controls-row">
+        <button class="btn" id="btn-mic-off">Выключить микрофон</button>
+        <button class="btn" id="btn-to-manual">Сдвигать пальцем</button>
+      </div>
+    </div>
+
+    <div class="controls-row hidden" id="t3-manual-controls">
+      <button class="btn btn-primary" id="btn-to-mic">Дуть по-настоящему (микрофон)</button>
+    </div>
+
+    <div class="feedback" id="t3-feedback"></div>
+    <div class="controls-row">
+      <button class="btn" id="t3-reset">Сбросить листочки заново</button>
+    </div>
+    <div class="next-wrap" id="t3-next">
+      <button class="btn btn-green btn-big" data-next="3">Отлично! Переходим дальше →</button>
+    </div>
+  </section>
+
+  <!-- ================= ЗАДАНИЕ 4: ЛАБИРИНТ ================= -->
+  <section class="screen" id="screen-task4">
+    <div class="task-top">
+      <button class="btn" data-goto="map" style="min-height:48px;padding:8px 18px;font-size:16px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" stroke="#3E6145" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        На карту</button>
+      <div class="spacer"></div>
+      <span class="task-badge">Задание 4 из 5</span>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Помоги Змейке добраться до домика!</h2>
+    <div class="helper">
+      <div class="helper-snake" data-helper-snake></div>
+      <div class="bubble">Веди меня пальцем по дорожке — и всё время тяни звук: <span class="say-sh">Ш-Ш-Ш…</span>
+        Нажми на Змейку и не отпускай, пока ведёшь!</div>
+    </div>
+    <div class="sh-banner">
+      <div class="sh-big pulse">Ш-Ш-Ш</div>
+      <button class="btn" id="btn-how-hiss">Как шипит Змейка?</button>
+    </div>
+    <div class="scene-frame maze-frame" id="maze-frame"></div>
+    <div class="feedback" id="t4-feedback">Нажми на Змейку и веди её по дорожке к домику!</div>
+    <div class="controls-row">
+      <button class="btn" id="t4-reset">Начать заново</button>
+    </div>
+    <div class="next-wrap" id="t4-next">
+      <button class="btn btn-green btn-big" data-next="4">Отлично! Переходим дальше →</button>
+    </div>
+  </section>
+
+  <!-- ================= ЗАДАНИЕ 5: ЗМЕЙКИ И ДОМИКИ ================= -->
+  <section class="screen" id="screen-task5">
+    <div class="task-top">
+      <button class="btn" data-goto="map" style="min-height:48px;padding:8px 18px;font-size:16px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" stroke="#3E6145" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        На карту</button>
+      <div class="spacer"></div>
+      <span class="task-badge">Задание 5 из 5</span>
+      <button class="icon-btn" data-sound-toggle aria-label="Включить или выключить звук" title="Звук"></button>
+    </div>
+    <h2 class="task-title">Проведи каждую Змейку домой!</h2>
+    <div class="helper">
+      <div class="helper-snake" data-helper-snake></div>
+      <div class="bubble">У каждой Змейки — свой домик такого же цвета! Нажми на Змейку и веди её по тропинке,
+        длительно произнося: <span class="say-sh">Ш-Ш-Ш…</span></div>
+    </div>
+    <div class="sh-banner"><div class="sh-big pulse">Ш-Ш-Ш</div></div>
+    <div class="scene-frame maze-frame" id="routes-frame"></div>
+    <div class="route-chips" id="route-chips"></div>
+    <div class="feedback" id="t5-feedback">Выбери Змейку и проведи её домой!</div>
+    <div class="controls-row">
+      <button class="btn" id="t5-reset">Начать заново</button>
+    </div>
+    <div class="next-wrap" id="t5-next">
+      <button class="btn btn-green btn-big" data-next="5">Все Змейки дома! К финалу →</button>
+    </div>
+  </section>
+
+  <!-- ================= ФИНАЛЬНЫЙ ЭКРАН ================= -->
+  <section class="screen" id="screen-final">
+    <div class="final-card">
+      <h1 class="title">Приключение завершено!</h1>
+      <p class="subtitle">Ты помог Змейке! Вы выполнили все задания.</p>
+      <div class="scene-frame" style="max-width:760px;margin:0 auto" id="final-scene"></div>
+      <div class="award">
+        <svg viewBox="0 0 48 48"><path d="M15 4h18l-3 12h-12z" fill="#D98C6A"/><circle cx="24" cy="29" r="13" fill="#E9C46A" stroke="#D9A441" stroke-width="2.5"/><path d="M24 20l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1-5.4-3-5.4 3 1.1-6.1-4.5-4.3 6.1-.8z" fill="#FFF3CF" stroke="#D9A441" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <div class="award-txt"><b>Медаль «Друг Змейки»</b><span>За старание, звонкое Ш-Ш-Ш и добрую помощь!</span></div>
+      </div>
+      <ul class="final-list" id="final-list"></ul>
+      <div class="controls-row">
+        <button class="btn btn-primary btn-big" id="btn-play-again">Играть ещё раз</button>
+        <button class="btn btn-big" data-goto="map">На карту</button>
+      </div>
+      <p class="note" style="margin-top:16px">Совет взрослым: занимайтесь понемногу, но регулярно.
+        Хвалите ребёнка за старание, следите, чтобы при звуке [Ш] губы были округлены и слегка выдвинуты вперёд,
+        а широкий язык поднят «чашечкой» к верхним зубам.</p>
+    </div>
+  </section>
+
+  <p class="footer-note">Логопедическая игра «Приключения Змейки. Звук Ш» • работает без интернета • звук микрофона не записывается</p>
+</div>
+
+<!-- Модальное окно: как шипит Змейка -->
+<div class="modal-overlay" id="modal-hiss">
+  <div class="modal">
+    <h3>Как шипит Змейка?</h3>
+    <div class="modal-snake" id="modal-snake"></div>
+    <div class="sh-big pulse" style="display:inline-block">Ш-Ш-Ш</div>
+    <p>Округли губы и выдвинь их вперёд, как бублик.<br>
+    Язычок подними «чашечкой» к верхним зубкам и подуй тёплым ветерком: <b>Ш-ш-ш…</b><br>
+    Слышишь? Так шипит Змейка!</p>
+    <button class="btn btn-primary" id="btn-hiss-close">Понятно, попробую!</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-layer" id="confetti-layer"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   «Приключения Змейки. Звук Ш»
+   Весь код игры находится в этом файле. Внешних ресурсов нет.
+   ============================================================ */
+
+/* ---------- Утилиты ---------- */
+function $(id){ return document.getElementById(id); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+var _uid=0; function uid(){ return ++_uid; }
+
+var toastTimer=null;
+function showToast(msg){
+  var t=$("toast"); t.textContent=msg; t.classList.add("show");
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove("show"); },2600);
+}
+function setFeedback(id,msg){
+  var el=$(id); if(!el) return;
+  el.textContent=msg; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+}
+
+/* ---------- Синтезированные звуки (без файлов) ---------- */
+var soundOn=true;
+try{ soundOn = localStorage.getItem("zmeykaSound")!=="off"; }catch(e){}
+var _ac=null;
+function audioCtx(){
+  if(!_ac){ try{ _ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ _ac=null; } }
+  if(_ac && _ac.state==="suspended") _ac.resume();
+  return _ac;
+}
+function playNotes(freqs,dur,type,gain){
+  if(!soundOn) return; var ctx=audioCtx(); if(!ctx) return;
+  dur=dur||0.14; type=type||"sine"; gain=gain||0.06;
+  var t0=ctx.currentTime;
+  freqs.forEach(function(f,i){
+    var o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t0+i*dur*0.85);
+    g.gain.linearRampToValueAtTime(gain,t0+i*dur*0.85+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+i*dur*0.85+dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t0+i*dur*0.85); o.stop(t0+i*dur*0.85+dur+0.05);
+  });
+}
+function sndClick(){ playNotes([620],0.07,"triangle",0.04); }
+function sndGood(){ playNotes([523,659,784],0.13,"triangle",0.055); }
+function sndWin(){ playNotes([523,659,784,1047],0.16,"triangle",0.06); }
+function sndSoft(){ playNotes([340,285],0.16,"sine",0.045); }
+function sndPop(){ playNotes([440,660],0.08,"triangle",0.05); }
+
+var ICON_SND_ON='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#3E6145"/><path d="M16 9c1.2 1.6 1.2 4.4 0 6M18.5 6.5c2.6 3.2 2.6 7.8 0 11" stroke="#3E6145" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var ICON_SND_OFF='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#98A89B"/><path d="M16 9l6 6M22 9l-6 6" stroke="#C06A45" stroke-width="2.4" stroke-linecap="round"/></svg>';
+function refreshSoundButtons(){
+  document.querySelectorAll("[data-sound-toggle]").forEach(function(b){ b.innerHTML = soundOn?ICON_SND_ON:ICON_SND_OFF; });
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-sound-toggle]");
+  if(b){ soundOn=!soundOn; try{ localStorage.setItem("zmeykaSound",soundOn?"on":"off"); }catch(err){}
+    refreshSoundButtons(); if(soundOn) sndClick(); showToast(soundOn?"Звук включён":"Звук выключен"); }
+});
+
+/* ---------- Озвучивание слов (встроенный синтез речи, если есть) ---------- */
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  try{
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text); u.lang="ru-RU"; u.rate=0.92; u.pitch=1.05;
+    var vs=window.speechSynthesis.getVoices();
+    for(var i=0;i<vs.length;i++){ if(/^ru/i.test(vs[i].lang)){ u.voice=vs[i]; break; } }
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- Конфетти из листочков и звёздочек ---------- */
+var CONF_COLORS=["#A9C98B","#E9C46A","#D98C6A","#A8D8EA","#F2A9A2","#8FAE8B"];
+function confettiSVG(color,star){
+  if(star) return '<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="'+color+'"/></svg>';
+  return '<svg viewBox="0 0 24 24"><path d="M20 4C10 4 4 10 4 20c10 0 16-6 16-16z" fill="'+color+'"/><path d="M4 20C8 14 13 9 19 5" stroke="rgba(0,0,0,.18)" stroke-width="1.4" fill="none"/></svg>';
+}
+function burstConfetti(count){
+  count=count||32;
+  var layer=$("confetti-layer");
+  for(var i=0;i<count;i++){
+    var d=document.createElement("div");
+    d.className="confetti-piece";
+    var size=14+Math.random()*14;
+    d.style.width=size+"px"; d.style.height=size+"px";
+    d.style.left=(Math.random()*98)+"vw";
+    d.style.animationDuration=(2.3+Math.random()*1.7)+"s";
+    d.style.animationDelay=(Math.random()*0.5)+"s";
+    d.style.opacity="0.95";
+    d.innerHTML=confettiSVG(CONF_COLORS[i%CONF_COLORS.length], Math.random()<0.45);
+    layer.appendChild(d);
+    (function(el){ setTimeout(function(){ el.remove(); },4800); })(d);
+  }
+}
+
+/* ============================================================
+   ЗМЕЙКА — единый дизайн героини (SVG, рисуется кодом)
+   Координаты рассчитаны на холст 400×300.
+   opts: body, dark, light (цвета), emotion, mouth, tongue,
+         tongueClass, cheeks (0..1), eyes ('open'|'happy')
+   ============================================================ */
+function snakeGroup(opts){
+  opts=opts||{};
+  var body = opts.body || "#7FB069";
+  var dark = opts.dark || "#557D43";
+  var light= opts.light|| "#DDF0C8";
+  var gid="sg"+uid();
+  var mouth=opts.mouth||"smile";
+  var eyesMode=opts.eyes||(opts.emotion==="proud"?"happy":"open");
+  var cheeks=(opts.cheeks!=null?opts.cheeks:0.5);
+
+  /* --- глаза --- */
+  var eyesSvg;
+  if(eyesMode==="happy"){
+    eyesSvg='<g stroke="#2E4630" stroke-width="4" fill="none" stroke-linecap="round">'
+      +'<path d="M183 66 Q194 54 205 66"/><path d="M219 66 Q230 54 241 66"/></g>';
+  }else{
+    eyesSvg='<g class="sn-eyes">'
+      +'<ellipse cx="194" cy="62" rx="11" ry="13" fill="#ffffff"/>'
+      +'<ellipse cx="230" cy="62" rx="11" ry="13" fill="#ffffff"/>'
+      +'<circle cx="195.5" cy="65" r="5.6" fill="#2E4630"/><circle cx="231.5" cy="65" r="5.6" fill="#2E4630"/>'
+      +'<circle cx="197.5" cy="62.5" r="2" fill="#ffffff"/><circle cx="233.5" cy="62.5" r="2" fill="#ffffff"/></g>'
+      +'<g stroke="#2E4630" stroke-width="2.4" stroke-linecap="round"><path d="M184 50l-4-4M190 48l-2-5M240 50l4-4M234 48l2-5"/></g>';
+  }
+  /* --- брови по эмоции --- */
+  var brows="";
+  if(opts.emotion==="surprised") brows='<g stroke="'+dark+'" stroke-width="3" fill="none" stroke-linecap="round"><path d="M183 44 Q194 38 205 44"/><path d="M219 44 Q230 38 241 44"/></g>';
+  if(opts.emotion==="focused")   brows='<g stroke="'+dark+'" stroke-width="3.2" fill="none" stroke-linecap="round"><path d="M184 46 L204 51"/><path d="M240 46 L220 51"/></g>';
+
+  /* --- рот --- */
+  var mouthSvg="";
+  if(mouth==="smile") mouthSvg='<path d="M193 93 Q212 107 231 93" stroke="#2E4630" stroke-width="3.6" fill="none" stroke-linecap="round"/>';
+  if(mouth==="bigsmile") mouthSvg='<path d="M191 91 Q212 114 233 91 Q212 101 191 91z" fill="#7A4034"/><path d="M200 103 Q212 110 224 103 Q212 106 200 103z" fill="#E8737A"/>';
+  if(mouth==="teeth") mouthSvg='<g><rect x="188" y="87" width="48" height="16" rx="8" fill="#ffffff" stroke="#2E4630" stroke-width="2.6"/>'
+    +'<path d="M198 88v14M207 88v14M216 88v14M225 88v14" stroke="#C9D6C2" stroke-width="2"/><path d="M188 95h48" stroke="#E4ECDC" stroke-width="1.6"/></g>';
+  if(mouth==="ooh") mouthSvg='<circle cx="212" cy="99" r="11" fill="#F0A8A0"/><circle cx="212" cy="99" r="7" fill="#7A4034"/>';
+  if(mouth==="open") mouthSvg='<ellipse cx="212" cy="100" rx="17" ry="11" fill="#7A4034"/><ellipse cx="212" cy="104" rx="11" ry="5" fill="#E8737A"/>';
+  if(mouth==="none") mouthSvg="";
+
+  /* --- язык --- */
+  var tongueSvg="", t=opts.tongue||"fork", tcls=opts.tongueClass||"sn-tongue";
+  if(t==="fork") tongueSvg='<g class="'+tcls+'"><path d="M212 102 L212 124 M212 124 L202 137 M212 124 L222 137" stroke="#E0586A" stroke-width="5" fill="none" stroke-linecap="round"/></g>';
+  if(t==="wide") tongueSvg='<g class="'+tcls+'"><ellipse cx="212" cy="113" rx="27" ry="10.5" fill="#F0919A" stroke="#D9636E" stroke-width="2"/><path d="M192 112 Q212 118 232 112" stroke="#D9636E" stroke-width="1.6" fill="none" opacity=".6"/></g>';
+  if(t==="cup")  tongueSvg='<g class="'+tcls+'"><path d="M187 103 C193 126 231 126 237 103 C228 113 196 113 187 103z" fill="#F0919A" stroke="#D9636E" stroke-width="2"/></g>';
+  if(t==="up")   tongueSvg='<g class="'+tcls+'"><path d="M189 89 Q212 73 235 89 Q212 96 189 89z" fill="#F0919A" stroke="#D9636E" stroke-width="2"/></g>';
+  if(t==="none") tongueSvg="";
+
+  /* --- артикуляционный показ для гимнастики: широкий язычок «как у ребёнка»,
+         который растёт изо рта; либо голова в профиль со схемой нёба --- */
+  if(opts.art){ mouthSvg=frontArtMouth(opts.art); tongueSvg=""; }
+  var headSvg;
+  if(opts.profile){
+    headSvg='<g class="sn-head">'+profileHead(opts.profile,gid,light,cheeks)+'</g>';
+  }else{
+    headSvg='<g class="sn-head">'
+      + '<ellipse cx="212" cy="74" rx="51" ry="42" fill="url(#'+gid+')"/>'
+      + '<ellipse cx="196" cy="52" rx="26" ry="13" fill="#ffffff" opacity="0.22"/>'
+      + '<ellipse cx="212" cy="91" rx="35" ry="23" fill="'+light+'" opacity="0.95"/>'
+      + brows + eyesSvg
+      + '<circle cx="204" cy="85" r="1.9" fill="#2E4630" opacity=".55"/><circle cx="220" cy="85" r="1.9" fill="#2E4630" opacity=".55"/>'
+      + mouthSvg + tongueSvg
+      + '<g class="sn-cheeks" opacity="'+cheeks+'"><ellipse cx="174" cy="84" rx="9.5" ry="6" fill="#F2A9A2"/><ellipse cx="250" cy="84" rx="9.5" ry="6" fill="#F2A9A2"/></g>'
+      + '</g>';
+  }
+
+  return ''
+  +'<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'
+  +'<stop offset="0" stop-color="'+light+'"/><stop offset="0.45" stop-color="'+body+'"/><stop offset="1" stop-color="'+dark+'"/></linearGradient></defs>'
+  /* тень и хвост */
+  +'<ellipse cx="208" cy="264" rx="122" ry="15" fill="#3E6145" opacity="0.14"/>'
+  +'<path d="M104 238 C66 244 44 232 50 212 C54 200 68 200 70 210" stroke="url(#'+gid+')" stroke-width="16" fill="none" stroke-linecap="round"/>'
+  +'<path d="M56 216 l10 3 M60 228 l10 4" stroke="'+dark+'" stroke-width="3" opacity=".5" stroke-linecap="round"/>'
+  /* витки тела */
+  +'<ellipse cx="205" cy="238" rx="112" ry="34" fill="url(#'+gid+')"/>'
+  +'<ellipse cx="205" cy="213" rx="90" ry="29" fill="url(#'+gid+')"/>'
+  +'<ellipse cx="203" cy="192" rx="66" ry="24" fill="url(#'+gid+')"/>'
+  /* пятна и блики на витках */
+  +'<g fill="'+dark+'" opacity="0.20"><ellipse cx="140" cy="228" rx="15" ry="8"/><ellipse cx="272" cy="222" rx="13" ry="7"/><ellipse cx="168" cy="204" rx="12" ry="6.5"/><ellipse cx="244" cy="186" rx="10" ry="5.5"/></g>'
+  +'<g fill="#ffffff" opacity="0.20"><ellipse cx="176" cy="198" rx="26" ry="8"/><ellipse cx="160" cy="222" rx="32" ry="9"/></g>'
+  /* шея */
+  +'<path d="M230 198 C238 164 236 134 222 108" stroke="url(#'+gid+')" stroke-width="37" fill="none" stroke-linecap="round"/>'
+  +'<path d="M238 196 C244 166 242 140 231 116" stroke="'+light+'" stroke-width="11" fill="none" stroke-linecap="round" opacity="0.85"/>'
+  /* голова */
+  + headSvg;
+}
+/* ============================================================
+   АРТИКУЛЯЦИОННЫЙ ПОКАЗ (вид спереди): губы, зубки и широкий
+   язычок, который выходит изо рта, как у ребёнка.
+   Центр рта — точка (212, 99) на мордочке Змейки.
+   ============================================================ */
+function frontArtMouth(kind){
+  var lip="#DF8A84", lipDark="#C4675F", tongue="#F0919A", tongueD="#D9636E", cav="#7A4034";
+  if(kind==="fence"){ /* «Заборчик»: улыбка, зубки сомкнуты и видны */
+    return '<g>'
+      +'<rect x="182" y="84" width="60" height="23" rx="11.5" fill="'+lip+'"/>'
+      +'<rect x="187" y="87.5" width="50" height="16" rx="7" fill="#ffffff"/>'
+      +'<path d="M197 88v15M206 88v15M215 88v15M224 88v15" stroke="#D8DFCE" stroke-width="1.8"/>'
+      +'<path d="M188 95.5h48" stroke="#C9D2BE" stroke-width="1.8"/>'
+      +'<path d="M178 90 q-3 5 1 9 M246 90 q3 5 -1 9" stroke="'+lipDark+'" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>';
+  }
+  if(kind==="bagel"){ /* «Бублик»: губы колечком, внутри — сомкнутые зубки */
+    var cid="bg"+uid();
+    return '<g><clipPath id="'+cid+'"><ellipse cx="212" cy="99" rx="13.5" ry="11"/></clipPath>'
+      +'<ellipse cx="212" cy="99" rx="21.5" ry="18" fill="'+lip+'"/>'
+      +'<ellipse cx="212" cy="99" rx="13.5" ry="11" fill="#ffffff"/>'
+      +'<g clip-path="url(#'+cid+')"><path d="M203 87v24M209 87v24M215 87v24M221 87v24" stroke="#D8DFCE" stroke-width="1.7"/>'
+      +'<path d="M198 99h28" stroke="#C9D2BE" stroke-width="1.8"/></g>'
+      +'<ellipse cx="212" cy="99" rx="13.5" ry="11" fill="none" stroke="'+lipDark+'" stroke-width="2"/>'
+      +'<path d="M198 88 A17 14 0 0 1 214 82" stroke="#F4B8B2" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
+  }
+  if(kind==="clean"){ /* «Чистим зубки»: кончик языка за верхними зубами, влево-вправо */
+    return '<g>'
+      +'<path d="M185 91 Q212 109 239 91 Q212 101 185 91z" fill="'+cav+'"/>'
+      +'<g class="tongue-fb"><ellipse cx="212" cy="100.5" rx="11" ry="6.5" fill="'+tongue+'" stroke="'+tongueD+'" stroke-width="1.8"/></g>'
+      +'<rect x="188" y="88" width="48" height="10" rx="5" fill="#ffffff"/>'
+      +'<path d="M198 89v8M207 89v8M216 89v8M225 89v8" stroke="#D8DFCE" stroke-width="1.7"/>'
+      +'<rect x="184" y="85.5" width="56" height="20" rx="10" fill="none" stroke="'+lip+'" stroke-width="3"/></g>';
+  }
+  if(kind==="pancake"){ /* «Блинчик»: широкий язычок лежит на нижней губе */
+    return '<g>'
+      +'<ellipse cx="212" cy="107" rx="28" ry="8.5" fill="'+lip+'"/>'
+      +'<path d="M191 94 Q212 102 233 94" stroke="'+lipDark+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+      +'<g class="tongue-hold"><path d="M188 95 C186 112 197 125 212 125 C227 125 238 112 236 95 C228 100 196 100 188 95z" fill="'+tongue+'" stroke="'+tongueD+'" stroke-width="2"/>'
+      +'<path d="M197 109 Q212 114 227 109" stroke="'+tongueD+'" stroke-width="1.6" fill="none" opacity=".55"/></g></g>';
+  }
+  /* «Качели» показываются в профиль — см. profileHead("swing") */
+  if(kind==="jam"){ /* «Варенье»: широкий язычок облизывает верхнюю губу сверху вниз */
+    return '<g>'
+      +'<path d="M192 100 Q212 110 232 100" stroke="'+lipDark+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+      +'<g class="tongue-lick2"><path d="M189 104 C183 83 196 72 212 72 C228 72 241 83 235 104 C227 97 197 97 189 104z" fill="'+tongue+'" stroke="'+tongueD+'" stroke-width="2"/>'
+      +'<circle cx="204" cy="85" r="3.2" fill="#C94F63"/><circle cx="219" cy="92" r="2.6" fill="#C94F63"/><circle cx="211" cy="79" r="2.2" fill="#C94F63"/></g></g>';
+  }
+  if(kind==="cup"){ /* «Чашечка»: из открытого рта выходит широкий язык-ковшик: бортики и кончик подняты, внутри — водичка */
+    return '<g>'
+      +'<ellipse cx="212" cy="100" rx="22" ry="13.5" fill="'+cav+'"/>'                    /* открытый рот */
+      +'<rect x="196" y="88" width="32" height="8" rx="4" fill="#ffffff"/>'               /* верхние зубки */
+      +'<path d="M204 89v6M212 89v6M220 89v6" stroke="#D8DFCE" stroke-width="1.6"/>'
+      +'<ellipse cx="212" cy="100" rx="22" ry="13.5" fill="none" stroke="'+lip+'" stroke-width="3"/>'  /* губы */
+      +'<g class="tongue-hold">'
+      +'<path d="M192 95 C183 104 183 118 194 126 C203 132 221 132 230 126 C241 118 241 104 232 95 C224 102 200 102 192 95z" fill="'+tongue+'" stroke="'+tongueD+'" stroke-width="2"/>'  /* широкий язык выходит изо рта */
+      +'<path d="M187 100 C183 90 188 81 197 83 C192 88 190 94 190 101 C189 100 188 100 187 100z" fill="#E87A85" stroke="'+tongueD+'" stroke-width="1.8"/>'   /* левый поднятый бортик */
+      +'<path d="M237 100 C241 90 236 81 227 83 C232 88 234 94 234 101 C235 100 236 100 237 100z" fill="#E87A85" stroke="'+tongueD+'" stroke-width="1.8"/>'   /* правый поднятый бортик */
+      +'<ellipse cx="212" cy="107" rx="15.5" ry="5.8" fill="#DE6B77"/>'                   /* углубление чашечки */
+      +'<ellipse cx="212" cy="105.8" rx="11.5" ry="4" fill="#A8D8EA"/>'                   /* водичка, налитая в чашечку */
+      +'<ellipse cx="207" cy="104.6" rx="4" ry="1.4" fill="#ffffff" opacity=".65"/>'
+      +'<path d="M194 117 C202 125 222 125 230 117 C222 128 202 128 194 117z" fill="#F7AAB1"/></g>'  /* поднятый кончик языка */
+      /* стрелочки-подсказки: края язычка — вверх! */
+      +'<g stroke="#C96F4A" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"><path d="M170 120 C166 110 167 101 173 94"/><path d="M254 120 C258 110 257 101 251 94"/></g>'
+      +'<path d="M173 88 l-4.5 9.5 l9.5 -1z" fill="#C96F4A"/><path d="M251 88 l4.5 9.5 l-9.5 -1z" fill="#C96F4A"/></g>';
+  }
+  return "";
+}
+
+/* ============================================================
+   ГОЛОВА В ПРОФИЛЬ (для «Маляра» и «Лошадки»): видна полость
+   рта, нёбо и язычок, который двигается по нёбу.
+   Змейка смотрит влево — на предмет упражнения.
+   ============================================================ */
+function profileHead(kind,gid,light,cheeks){
+  var cavD="M149 82 L207 93 L205 104 L158 107 C150 100 147 91 149 82z";
+  var clipId="ph"+uid();
+  var tonguePath, tongueClass, lowerTeeth="";
+  if(kind==="painter"){ /* кончик языка гладит нёбо вперёд-назад */
+    tongueClass="tongue-paint";
+    tonguePath="M208 104 C198 92 183 85 169 84 C162 84 160 89 164 94 C173 103 191 107 208 108z";
+  }else if(kind==="swing"){ /* «Качели»: кончик языка качается от верхних зубов к нижним */
+    tongueClass="tongue-swingp";
+    tonguePath="M208 108 C198 100 180 94 165 93 C158 93 156 98 160 102 C170 108 190 111 208 111z";
+    lowerTeeth='<g transform="rotate(-7 158 102)"><rect x="150" y="98" width="15" height="9" rx="2.5" fill="#ffffff"/><path d="M157.5 99v7" stroke="#D8DFCE" stroke-width="1.6"/></g>'; /* нижние зубки */
+  }else{ /* «Лошадка»: язык присасывается к нёбу и с щелчком отрывается вниз */
+    tongueClass="tongue-horseclick";
+    tonguePath="M208 105 C198 93 179 86 162 85 C155 85 153 90 157 95 C167 105 189 108 208 109z";
+  }
+  return ''
+    + '<clipPath id="'+clipId+'"><path d="'+cavD+'"/></clipPath>'
+    + '<ellipse cx="214" cy="69" rx="48" ry="40" fill="url(#'+gid+')"/>'                 /* голова */
+    + '<ellipse cx="176" cy="82" rx="33" ry="23" fill="url(#'+gid+')"/>'                 /* мордочка вперёд */
+    + '<ellipse cx="182" cy="105" rx="27" ry="12" fill="url(#'+gid+')"/>'                /* нижняя челюсть */
+    + '<ellipse cx="200" cy="48" rx="24" ry="11" fill="#ffffff" opacity="0.22"/>'
+    + '<ellipse cx="184" cy="93" rx="23" ry="13" fill="'+light+'" opacity="0.9"/>'
+    + '<path d="'+cavD+'" fill="#7A4034"/>'                                              /* полость рта */
+    + '<path d="M153 83 C170 88 190 92 206 93" stroke="#F0B8B0" stroke-width="5" fill="none" stroke-linecap="round"/>' /* нёбо */
+    + '<g clip-path="url(#'+clipId+')"><g class="'+tongueClass+'"><path d="'+tonguePath+'" fill="#F0919A" stroke="#D9636E" stroke-width="2"/></g></g>'
+    + '<g transform="rotate(9 158 88)"><rect x="150" y="83" width="15" height="10" rx="2.5" fill="#ffffff"/><path d="M157.5 84v8" stroke="#D8DFCE" stroke-width="1.6"/></g>' /* верхние зубки */
+    + lowerTeeth
+    + '<path d="M150 100 C156 108 172 112 190 111" stroke="#DF8A84" stroke-width="3.2" fill="none" stroke-linecap="round"/>' /* нижняя губа */
+    + '<g class="sn-eyes"><ellipse cx="206" cy="56" rx="11" ry="13" fill="#ffffff"/><circle cx="202" cy="60" r="5.6" fill="#2E4630"/><circle cx="204" cy="57" r="2" fill="#ffffff"/></g>'
+    + '<path d="M196 44 l-3 -5 M203 42.5 l-1 -5.5" stroke="#2E4630" stroke-width="2.4" stroke-linecap="round"/>'
+    + '<circle cx="152" cy="71" r="2.1" fill="#2E4630" opacity=".55"/>'                  /* ноздря */
+    + '<g class="sn-cheeks" opacity="'+cheeks+'"><ellipse cx="234" cy="84" rx="9.5" ry="6" fill="#F2A9A2"/></g>';
+}
+
+/* Отдельный SVG с героиней (для помощницы, стартового экрана и т.д.) */
+function snakeSVG(opts,viewBox){
+  return '<svg viewBox="'+(viewBox||"35 8 335 272")+'" role="img" aria-label="Змейка">'+snakeGroup(opts)+'</svg>';
+}
+
+/* ---------- Мелкие декорации сада ---------- */
+function grassTuft(x,y,s){
+  s=s||1;
+  return '<g transform="translate('+x+','+y+') scale('+s+')" stroke="#6FA05E" stroke-width="3.4" fill="none" stroke-linecap="round">'
+    +'<path d="M0 0 C-2 -10 -6 -15 -10 -19"/><path d="M4 0 C4 -11 6 -17 10 -22"/><path d="M-4 0 C-5 -8 -9 -12 -14 -14"/></g>';
+}
+function flowerSVG(x,y,color,s){
+  s=s||1;
+  var p="";
+  for(var i=0;i<5;i++){ var a=i/5*Math.PI*2; p+='<circle cx="'+(Math.cos(a)*7).toFixed(1)+'" cy="'+(Math.sin(a)*7).toFixed(1)+'" r="5.2" fill="'+color+'"/>'; }
+  return '<g transform="translate('+x+','+y+') scale('+s+')"><path d="M0 6 C0 16 -2 22 -5 28" stroke="#6FA05E" stroke-width="3" fill="none"/>'+p+'<circle r="3.6" fill="#F7D774"/></g>';
+}
+function bushSVG(x,y,s,color){
+  color=color||"#8FBE7E";
+  return '<g transform="translate('+x+','+y+') scale('+s+')"><circle cx="-22" cy="4" r="20" fill="'+color+'"/><circle cx="4" cy="-8" r="25" fill="'+color+'"/><circle cx="26" cy="5" r="18" fill="'+color+'"/>'
+    +'<circle cx="-8" cy="-12" r="10" fill="#ffffff" opacity=".18"/><circle cx="14" cy="-2" r="3" fill="#F2A9A2"/><circle cx="-18" cy="2" r="3" fill="#F7D774"/><circle cx="2" cy="8" r="3" fill="#ffffff"/></g>';
+}
+function cloudSVG(x,y,s,cls){
+  return '<g class="'+(cls||"")+'" transform="translate('+x+','+y+') scale('+s+')" fill="#ffffff" opacity="0.92"><ellipse cx="0" cy="0" rx="34" ry="15"/><ellipse cx="-24" cy="5" rx="22" ry="11"/><ellipse cx="24" cy="5" rx="24" ry="12"/></g>';
+}
+function butterflySVG(x,y,color){
+  return '<g class="flutter" transform="translate('+x+','+y+')"><ellipse cx="-8" cy="-3" rx="9" ry="6" fill="'+color+'" transform="rotate(-28)"/><ellipse cx="8" cy="-3" rx="9" ry="6" fill="'+color+'" transform="rotate(28)"/><ellipse cx="0" cy="1" rx="2.6" ry="7" fill="#5B4A3A"/><path d="M-1 -6 C-5 -11 -8 -12 -10 -12 M1 -6 C5 -11 8 -12 10 -12" stroke="#5B4A3A" stroke-width="1.4" fill="none"/></g>';
+}
+function houseSVG(x,y,s,roof,opts){
+  opts=opts||{};
+  var doorId=opts.doorId?(' id="'+opts.doorId+'"'):"";
+  var sign=opts.sign?'<g><rect x="-68" y="-130" width="136" height="26" rx="9" fill="#B98A5E" stroke="#8F6A44" stroke-width="2"/><text x="0" y="-112" text-anchor="middle" font-size="14" font-weight="700" fill="#FFF6E3" font-family="inherit">'+opts.sign+'</text></g>':"";
+  return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="6" rx="66" ry="10" fill="#3E6145" opacity="0.15"/>'
+    +'<rect x="-52" y="-78" width="104" height="80" rx="10" fill="#FFF3DC" stroke="#E3CBA3" stroke-width="2.5"/>'
+    +'<path d="M-64 -74 L0 -122 L64 -74 Z" fill="'+roof+'" stroke="rgba(0,0,0,.14)" stroke-width="2" stroke-linejoin="round"/>'
+    +'<path d="M-46 -82 L0 -112 L46 -82" stroke="rgba(255,255,255,.35)" stroke-width="4" fill="none" stroke-linecap="round"/>'
+    +'<rect x="26" y="-116" width="15" height="26" rx="3" fill="#C9A186"/><rect x="23" y="-120" width="21" height="7" rx="3" fill="#A97C50"/>'
+    +'<g><rect x="-40" y="-56" width="27" height="27" rx="6" fill="#FFE9A8" stroke="#D9A441" stroke-width="2.2"/><path d="M-26.5 -56v27M-40 -42.5h27" stroke="#D9A441" stroke-width="2"/></g>'
+    +'<rect x="10" y="-46" width="30" height="48" rx="14" fill="#6B4A2E"/>'
+    +'<g class="door"'+doorId+'><rect x="10" y="-46" width="30" height="48" rx="14" fill="#A97C50" stroke="#8F6A44" stroke-width="2"/><circle cx="34" cy="-22" r="3" fill="#F7D774"/></g>'
+    +'<path d="M-52 -66 q10 -10 20 0 q10 -10 20 0" stroke="#E3CBA3" stroke-width="2" fill="none"/>'
+    + sign + '</g>';
+}
+
+/* ---------- Стартовый экран: Змейка в сказочном саду ---------- */
+function buildStartHero(){
+  var svg='<svg viewBox="0 0 800 430" role="img" aria-label="Змейка в волшебном саду">'
+    +'<defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BEE6F5"/><stop offset="0.6" stop-color="#E4F4E9"/><stop offset="1" stop-color="#FDF6E0"/></linearGradient></defs>'
+    +'<rect width="800" height="430" fill="url(#skyG)"/>'
+    +'<circle cx="690" cy="64" r="34" fill="#F9DE8B"/><circle cx="690" cy="64" r="46" fill="#F9DE8B" opacity="0.3"/>'
+    + cloudSVG(140,58,1.1,"cloud-drift") + cloudSVG(430,42,0.8,"cloud-drift")
+    /* холмы */
+    +'<path d="M0 300 Q180 240 380 288 T800 280 V430 H0 Z" fill="#BCDBA9"/>'
+    +'<path d="M0 340 Q220 292 460 336 T800 330 V430 H0 Z" fill="#A3CC8F"/>'
+    /* дерево */
+    +'<g><path d="M96 318 C100 268 98 226 88 190 L112 190 C106 232 108 276 116 318 Z" fill="#9A7150"/>'
+    +'<circle cx="70" cy="150" r="52" fill="#7FB069"/><circle cx="128" cy="138" r="46" fill="#8FBE7E"/><circle cx="100" cy="108" r="44" fill="#A3CC8F"/>'
+    +'<circle cx="78" cy="148" r="6" fill="#E8737A"/><circle cx="122" cy="128" r="6" fill="#E8737A"/><circle cx="104" cy="168" r="6" fill="#E8737A"/></g>'
+    /* домик вдали */
+    + houseSVG(688,330,0.82,"#D98C6A",{sign:"Домик"})
+    /* заборчик */
+    +'<g fill="#C49A6C" stroke="#A97C50" stroke-width="2">'
+    +[560,596,632,668].map(function(x){return '<rect x="'+x+'" y="352" width="22" height="52" rx="9"/>';}).join("")
+    +'<rect x="548" y="368" width="152" height="11" rx="5" fill="#B98A5E"/><rect x="548" y="388" width="152" height="11" rx="5" fill="#B98A5E"/></g>'
+    /* дорожка */
+    +'<path d="M300 430 C360 384 470 380 560 372 C610 368 650 364 676 358 L690 384 C600 398 470 404 392 430 Z" fill="#EFDFC0"/>'
+    + bushSVG(210,330,1.05) + bushSVG(520,322,0.85) + bushSVG(46,352,0.9)
+    + flowerSVG(258,368,"#F2A9A2",1.15)+flowerSVG(478,382,"#B7A6E8",1.05)+flowerSVG(150,392,"#ffffff",1)+flowerSVG(612,402,"#F7C8D8",1.1)
+    + grassTuft(330,398,1.2)+grassTuft(420,410,1)+grassTuft(90,414,1.1)+grassTuft(740,408,1.15)
+    /* указатель с буквой Ш */
+    +'<g><rect x="496" y="252" width="10" height="72" rx="4" fill="#9A7150"/><g transform="rotate(-4 500 262)"><rect x="456" y="238" width="92" height="44" rx="10" fill="#B98A5E" stroke="#8F6A44" stroke-width="2.5"/><text x="502" y="270" text-anchor="middle" font-size="30" font-weight="800" fill="#FFF6E3">Ш →</text></g></g>'
+    + butterflySVG(300,150,"#F2A9A2") + butterflySVG(610,180,"#A8D8EA")
+    /* героиня */
+    +'<g transform="translate(128,96) scale(1.06)">'+snakeGroup({emotion:"happy"})+'</g>'
+    +'</svg>';
+  $("start-hero").innerHTML=svg;
+}
+
+/* ---------- Финальная сцена ---------- */
+function buildFinalScene(){
+  var svg='<svg viewBox="0 0 800 430" role="img" aria-label="Все Змейки возле домика">'
+    +'<defs><linearGradient id="skyG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BEE6F5"/><stop offset="0.6" stop-color="#E4F4E9"/><stop offset="1" stop-color="#FDF6E0"/></linearGradient></defs>'
+    +'<rect width="800" height="430" fill="url(#skyG2)"/>'
+    +'<circle cx="96" cy="60" r="32" fill="#F9DE8B"/><circle cx="96" cy="60" r="44" fill="#F9DE8B" opacity="0.3"/>'
+    + cloudSVG(300,52,1,"cloud-drift") + cloudSVG(620,40,0.85,"cloud-drift")
+    +'<path d="M0 310 Q200 262 420 300 T800 296 V430 H0 Z" fill="#A3CC8F"/>'
+    +'<g><path d="M716 322 C720 276 718 238 710 204 L732 204 C726 244 728 284 736 322 Z" fill="#9A7150"/>'
+    +'<circle cx="694" cy="168" r="46" fill="#7FB069"/><circle cx="744" cy="156" r="40" fill="#8FBE7E"/><circle cx="720" cy="130" r="38" fill="#A3CC8F"/></g>'
+    + houseSVG(400,344,1.5,"#D98C6A",{sign:"Домик Змейки",doorId:"final-door"})
+    + bushSVG(238,352,1) + bushSVG(566,356,0.95)
+    + flowerSVG(120,386,"#F2A9A2",1.15)+flowerSVG(660,392,"#B7A6E8",1.1)+flowerSVG(520,404,"#ffffff",1)+flowerSVG(268,402,"#F7C8D8",1.05)
+    + grassTuft(180,408,1.1)+grassTuft(600,414,1.15)+grassTuft(60,410,1)
+    + butterflySVG(180,180,"#F2A9A2")+butterflySVG(560,140,"#E9C46A")
+    /* шарики-гирлянда */
+    +'<g><path d="M236 92 Q400 142 564 92" stroke="#B98A5E" stroke-width="2.5" fill="none"/>'
+    +'<path d="M290 109 l12 20 12-18z" fill="#D98C6A"/><path d="M345 121 l12 20 12-18z" fill="#E9C46A"/><path d="M400 125 l12 20 12-18z" fill="#A8D8EA"/><path d="M455 121 l12 20 12-18z" fill="#8FAE8B"/><path d="M506 109 l12 20 12-18z" fill="#F2A9A2"/></g>'
+    /* Змейки */
+    +'<g transform="translate(-6,158) scale(0.72)">'+snakeGroup({emotion:"proud",eyes:"happy",mouth:"bigsmile"})+'</g>'
+    +'<g transform="translate(470,186) scale(0.6)">'+snakeGroup({body:"#4FB3A9",dark:"#2E7E78",light:"#CDEEEA",emotion:"happy",mouth:"bigsmile"})+'</g>'
+    +'<g transform="translate(596,222) scale(0.52)">'+snakeGroup({body:"#B5C94E",dark:"#84962F",light:"#F0F3C8",emotion:"happy"})+'</g>'
+    +'</svg>';
+  $("final-scene").innerHTML=svg;
+  var d=$("final-door"); if(d) d.classList.add("open");
+}
+
+/* ---------- Фон для задания 3: осенняя дорожка и Змейка ---------- */
+function buildLeavesBg(){
+  var svg='<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">'
+    +'<rect width="800" height="600" fill="#FBEED3"/>'
+    +'<path d="M0 150 Q200 105 420 140 T800 130 V600 H0 Z" fill="#DCE3B4"/>'
+    /* осенние деревья */
+    +'<g><rect x="52" y="70" width="14" height="90" rx="6" fill="#9A7150"/><circle cx="60" cy="52" r="44" fill="#E8A85C"/><circle cx="30" cy="76" r="28" fill="#D98C6A"/><circle cx="92" cy="72" r="26" fill="#DDB84E"/></g>'
+    +'<g><rect x="726" y="60" width="14" height="96" rx="6" fill="#9A7150"/><circle cx="733" cy="42" r="46" fill="#D98C6A"/><circle cx="700" cy="68" r="27" fill="#E8A85C"/><circle cx="764" cy="66" r="26" fill="#C96F4A"/></g>'
+    +'<g><rect x="636" y="96" width="11" height="66" rx="5" fill="#9A7150"/><circle cx="641" cy="80" r="32" fill="#DDB84E"/></g>'
+    /* дорожка */
+    +'<path d="M330 600 C360 470 380 360 372 250 C368 200 362 168 366 140 L470 140 C462 190 470 240 486 330 C500 420 520 520 536 600 Z" fill="#F0E2C4" stroke="#E0CBA4" stroke-width="3"/>'
+    +'<g fill="#DCC9A2"><ellipse cx="420" cy="520" rx="34" ry="10"/><ellipse cx="408" cy="440" rx="28" ry="9"/><ellipse cx="428" cy="360" rx="24" ry="8"/><ellipse cx="414" cy="280" rx="20" ry="7"/></g>'
+    /* Змейка слева готовится дуть */
+    +'<g transform="translate(-30,238) scale(0.94)">'+snakeGroup({mouth:"ooh",tongue:"none",cheeks:0.95,emotion:"focused"})+'</g>'
+    + bushSVG(700,470,1.1,"#CBB96E") + bushSVG(112,574,0.85,"#CBB96E")
+    + grassTuft(640,540,1.2)+grassTuft(210,470,1.1)
+    +'</svg>';
+  $("leaves-bg").innerHTML=svg;
+}
+function leafSVG(color,type){
+  if(type===1) return '<svg viewBox="0 0 60 60"><path d="M30 4 L36 18 L48 10 L44 24 L57 22 L46 32 L54 40 L40 40 L42 53 L30 45 L18 53 L20 40 L6 40 L14 32 L3 22 L16 24 L12 10 L24 18 Z" fill="'+color+'" stroke="rgba(0,0,0,.15)" stroke-linejoin="round"/><path d="M30 46 V58" stroke="#8F6A44" stroke-width="3" stroke-linecap="round"/></svg>';
+  if(type===2) return '<svg viewBox="0 0 60 60"><path d="M30 3 C44 12 50 26 46 38 C42 50 36 54 30 54 C24 54 18 50 14 38 C10 26 16 12 30 3z" fill="'+color+'" stroke="rgba(0,0,0,.15)"/><path d="M30 8 V54 M30 20 L20 14 M30 30 L40 24 M30 40 L21 35" stroke="rgba(0,0,0,.2)" stroke-width="2" fill="none"/><path d="M30 54 v5" stroke="#8F6A44" stroke-width="3" stroke-linecap="round"/></svg>';
+  return '<svg viewBox="0 0 60 60"><path d="M52 8 C30 8 12 22 8 52 C38 48 52 30 52 8z" fill="'+color+'" stroke="rgba(0,0,0,.15)"/><path d="M10 50 C22 36 36 22 50 10" stroke="rgba(0,0,0,.2)" stroke-width="2" fill="none"/></svg>';
+}
+
+/* ============================================================
+   ЗАДАНИЕ 1 — данные упражнений и предметные иллюстрации
+   ============================================================ */
+function exItem(id){
+  switch(id){
+  case "fence": return '<g>'
+    +'<g fill="#C49A6C" stroke="#A97C50" stroke-width="2.4">'
+    +[26,58,90,122].map(function(x){return '<rect x="'+x+'" y="146" width="24" height="104" rx="10"/>';}).join("")
+    +'<rect x="16" y="172" width="140" height="13" rx="6" fill="#B98A5E"/><rect x="16" y="210" width="140" height="13" rx="6" fill="#B98A5E"/></g>'
+    +'<g fill="#8F6A44"><circle cx="38" cy="178" r="2.4"/><circle cx="70" cy="178" r="2.4"/><circle cx="102" cy="178" r="2.4"/><circle cx="134" cy="178" r="2.4"/></g>'
+    + flowerSVG(36,244,"#F2A9A2",0.95)+flowerSVG(128,250,"#ffffff",0.9)+grassTuft(84,258,1)+'</g>';
+  case "bagel": return '<g>'
+    +'<ellipse cx="96" cy="246" rx="66" ry="14" fill="#DFF3FB" stroke="#A8D8EA" stroke-width="3"/>'
+    +'<circle cx="96" cy="204" r="45" fill="#E8B06E" stroke="#C98B45" stroke-width="3"/>'
+    +'<circle cx="96" cy="204" r="17" fill="#E7F3E4" stroke="#C98B45" stroke-width="3"/>'
+    +'<path d="M66 178 A38 38 0 0 1 104 162" stroke="#F7D9A0" stroke-width="7" fill="none" stroke-linecap="round"/>'
+    +'<g fill="#FFF3D6"><ellipse cx="74" cy="190" rx="4" ry="2.2" transform="rotate(-30 74 190)"/><ellipse cx="112" cy="176" rx="4" ry="2.2" transform="rotate(20 112 176)"/><ellipse cx="122" cy="208" rx="4" ry="2.2" transform="rotate(60 122 208)"/><ellipse cx="86" cy="228" rx="4" ry="2.2" transform="rotate(-15 86 228)"/><ellipse cx="66" cy="216" rx="4" ry="2.2" transform="rotate(40 66 216)"/></g>'
+    + flowerSVG(34,252,"#F7C8D8",0.9)+'</g>';
+  case "teeth": return '<g>'
+    +'<g transform="translate(70,196)"><rect x="-26" y="0" width="52" height="58" rx="9" fill="#DFF3FB" stroke="#A8D8EA" stroke-width="3"/>'
+    +'<rect x="-16" y="-42" width="9" height="44" rx="4.5" fill="#F2A9A2" transform="rotate(-8)"/><rect x="6" y="-44" width="9" height="46" rx="4.5" fill="#8FAE8B" transform="rotate(7)"/>'
+    +'<rect x="-20" y="-50" width="14" height="10" rx="3" fill="#ffffff" transform="rotate(-8)"/><rect x="8" y="-52" width="14" height="10" rx="3" fill="#ffffff" transform="rotate(7)"/></g>'
+    +'<g transform="translate(308,118)"><g class="anim-brush"><rect x="-4" y="-6" width="92" height="12" rx="6" fill="#7FB6D9"/>'
+    +'<rect x="-32" y="-8" width="30" height="16" rx="5" fill="#5E9CC4"/><path d="M-28 -8v-7M-20 -8v-7M-12 -8v-7" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round"/>'
+    +'<circle cx="-22" cy="-16" r="6" fill="#ffffff"/><circle cx="-12" cy="-14" r="4.4" fill="#ffffff"/></g></g></g>';
+  case "pancake": return '<g>'
+    +'<rect x="150" y="204" width="52" height="11" rx="5.5" fill="#4A585E" transform="rotate(7 150 210)"/>'
+    +'<ellipse cx="98" cy="222" rx="60" ry="17" fill="#5B6B72"/><ellipse cx="98" cy="216" rx="52" ry="14" fill="#7A8B92"/>'
+    +'<g class="anim-blin"><ellipse cx="98" cy="212" rx="45" ry="12" fill="#F3CD8B" stroke="#DCA94F" stroke-width="2.5"/>'
+    +'<circle cx="80" cy="210" r="3" fill="#DCA94F"/><circle cx="110" cy="214" r="2.6" fill="#DCA94F"/><circle cx="96" cy="208" r="2.2" fill="#DCA94F"/></g>'
+    +'<ellipse cx="98" cy="254" rx="52" ry="10" fill="#ffffff" stroke="#E3CBA3" stroke-width="2.4"/>'
+    +'<ellipse cx="98" cy="248" rx="36" ry="8" fill="#F3CD8B" stroke="#DCA94F" stroke-width="2"/></g>';
+  case "swing": return '<g>'
+    +'<path d="M40 254 L52 70 M152 254 L140 70" stroke="#8F6A44" stroke-width="9" stroke-linecap="round"/>'
+    +'<rect x="28" y="56" width="138" height="12" rx="6" fill="#A97C50"/>'
+    +'<g class="anim-swing"><path d="M72 68 V170 M118 68 V170" stroke="#B98A5E" stroke-width="3.6"/>'
+    +'<rect x="58" y="168" width="74" height="11" rx="5" fill="#D98C6A"/><rect x="66" y="160" width="58" height="10" rx="5" fill="#E9C46A"/></g>'
+    + flowerSVG(30,248,"#ffffff",0.9)+grassTuft(150,258,1)+'</g>';
+  case "jam": return '<g>'
+    +'<ellipse cx="158" cy="246" rx="27" ry="9" fill="#E9C46A" stroke="#D9A441" stroke-width="2.4"/>'
+    +'<path d="M58 176 h76 v34 c0 24 -16 38 -38 38 s-38 -14 -38 -38z" fill="#F9DDE0" stroke="#D98C8C" stroke-width="2.6"/>'
+    +'<path d="M62 196 h68 v14 c0 20 -14 32 -34 32 s-34 -12 -34 -32z" fill="#C94F63"/>'
+    +'<ellipse cx="96" cy="178" rx="38" ry="7" fill="#E4707F"/>'
+    +'<g><path d="M96 150 C84 158 82 170 90 177 C94 180 98 180 102 177 C110 170 108 158 96 150z" fill="#E0475E"/><path d="M86 152 Q96 144 106 152 Q96 156 86 152z" fill="#6FA05E"/><circle cx="92" cy="164" r="1.6" fill="#FFD9DE"/><circle cx="100" cy="168" r="1.6" fill="#FFD9DE"/></g>'
+    +'<circle cx="76" cy="220" r="7" fill="#A83A4C"/><circle cx="112" cy="228" r="6" fill="#A83A4C"/></g>';
+  case "cup": return '<g>'
+    +'<g class="anim-steam" stroke="#A9C6CC" stroke-width="4" fill="none" stroke-linecap="round"><path d="M82 172 C76 160 88 154 82 142"/><path d="M104 172 C98 160 110 154 104 142"/></g>'
+    +'<ellipse cx="96" cy="252" rx="58" ry="11" fill="#DFF3FB" stroke="#A8D8EA" stroke-width="2.6"/>'
+    +'<path d="M54 188 h84 v12 c0 28 -18 44 -42 44 s-42 -16 -42 -44z" fill="#ffffff" stroke="#A8D8EA" stroke-width="3"/>'
+    +'<path d="M138 196 c16 -2 24 8 20 18 c-3 8 -12 12 -22 10" fill="none" stroke="#A8D8EA" stroke-width="6"/>'
+    +'<ellipse cx="96" cy="189" rx="42" ry="7.5" fill="#D9A441"/>'
+    + flowerSVG(96,220,"#F2A9A2",0.85)+'</g>';
+  case "horse": return '<g class="anim-rock">'
+    +'<path d="M34 236 Q108 262 182 236" stroke="#8F6A44" stroke-width="9" fill="none" stroke-linecap="round"/>'
+    +'<path d="M70 210 L62 240 M140 210 L150 240" stroke="#A97C50" stroke-width="8" stroke-linecap="round"/>'
+    +'<ellipse cx="104" cy="192" rx="48" ry="26" fill="#D98C6A"/>'
+    +'<path d="M132 182 C140 162 150 150 162 144 L174 162 C162 172 154 184 150 198 Z" fill="#D98C6A"/>'
+    +'<ellipse cx="168" cy="152" rx="19" ry="12" fill="#E8A582" transform="rotate(24 168 152)"/>'
+    +'<path d="M150 138 l4-14 10 10z" fill="#C96F4A"/>'
+    +'<path d="M138 150 C148 138 158 134 166 136 C156 144 148 156 144 170 C140 162 138 156 138 150z" fill="#8F5A3B"/>'
+    +'<circle cx="166" cy="150" r="2.8" fill="#4A3325"/><circle cx="180" cy="158" r="2" fill="#8F5A3B"/>'
+    +'<path d="M58 184 C46 190 40 204 44 218 C52 208 58 198 62 192z" fill="#8F5A3B"/>'
+    +'<rect x="88" y="168" width="34" height="14" rx="6" fill="#7FB6D9"/></g>';
+  case "painter": return '<g>'
+    +'<rect x="26" y="116" width="122" height="134" rx="8" fill="#F2E4CE" stroke="#DEC9A3" stroke-width="2.6"/>'
+    +'<path d="M26 150h122M26 184h122M26 218h122M66 116v34M106 150v34M66 184v34M106 218v32" stroke="#DEC9A3" stroke-width="2.2"/>'
+    +'<rect x="26" y="116" width="122" height="66" rx="8" fill="#A9C98B" opacity="0.85"/>'
+    +'<g transform="translate(126,138)"><g class="anim-paintbrush"><rect x="-5" y="0" width="10" height="50" rx="4" fill="#B98A5E"/><rect x="-8" y="46" width="16" height="10" fill="#C9D6C2"/><rect x="-8" y="56" width="16" height="16" rx="3" fill="#7FA96E"/></g></g>'
+    +'<g transform="translate(52,230)"><path d="M-20 0 h40 l-5 30 h-30z" fill="#7FB6D9"/><ellipse cx="0" cy="0" rx="20" ry="5" fill="#7FA96E"/></g></g>';
+  }
+  return "";
+}
+
+var EXERCISES=[
+ {id:"fence",  name:"«Заборчик»",    how:"Улыбнись и покажи зубки. Удерживай улыбку.", art:"fence"},
+ {id:"bagel",  name:"«Бублик»",      how:"Сомкни зубки, а губы округли, как бублик. Зубки видны в окошечке губ.", art:"bagel"},
+ {id:"teeth",  name:"«Чистим зубки»",how:"Улыбнись и кончиком языка почисти верхние зубки изнутри — влево-вправо.", art:"clean"},
+ {id:"pancake",name:"«Блинчик»",     how:"Положи широкий язычок на нижнюю губу и удерживай его.", art:"pancake"},
+ {id:"swing",  name:"«Качели»",      how:"Открой рот пошире: кончик языка то за верхними зубками, то за нижними. Вверх-вниз, как качели! Посмотри сбоку, как качается язычок Змейки.", profile:"swing"},
+ {id:"jam",    name:"«Варенье»",     how:"Оближи верхнюю губу широким язычком, двигаясь сверху вниз.", art:"jam"},
+ {id:"cup",    name:"«Чашечка»",     how:"Открой рот и подними края и кончик широкого язычка, чтобы получилась чашечка. Удерживай — не пролей водичку!", art:"cup"},
+ {id:"horse",  name:"«Лошадка»",     how:"Присоси язык к нёбу, затем щёлкни язычком. Посмотри сбоку, как движется язычок Змейки!", profile:"horse"},
+ {id:"painter",name:"«Маляр»",       how:"Улыбнись, открой рот и погладь язычком нёбо вперёд-назад, как кисточкой. Видишь сбоку, как язычок красит «потолок»?", profile:"painter"}
+];
+function exerciseScene(ex){
+  var snake='<g transform="translate(58,6) scale(0.97)">'+snakeGroup({art:ex.art,profile:ex.profile})+'</g>';
+  var item=exItem(ex.id);
+  /* щётку в «Чистим зубки» рисуем поверх Змейки, остальные предметы — рядом/позади */
+  var order = (ex.id==="teeth") ? (snake+item) : (item+snake);
+  return '<svg viewBox="0 0 400 300" role="img" aria-label="Упражнение '+ex.name+'">'
+    + cloudSVG(60,34,0.55,"cloud-drift")
+    +'<ellipse cx="200" cy="282" rx="230" ry="42" fill="#CDE3C0"/>'
+    +'<ellipse cx="200" cy="290" rx="230" ry="38" fill="#BBD8AC"/>'
+    + order
+    + grassTuft(352,272,1)+flowerSVG(330,262,"#F2A9A2",0.85)
+    +'</svg>';
+}
+
+/* ============================================================
+   ЗАДАНИЕ 2 — картинки (все нарисованы SVG-кодом)
+   Правильные (со звуком [Ш]): шар, шмель, машина, кошка, шапка, душ.
+   «Щит» — отвлекающий вариант: там мягкий звук [Щ].
+   ============================================================ */
+var PICTURES=[
+{id:"owl",word:"СОВА",hasSh:false,svg:'<svg viewBox="0 0 200 200">'
+ +'<path d="M10 168 C60 156 140 156 192 164" stroke="#8F6A44" stroke-width="11" fill="none" stroke-linecap="round"/>'
+ +'<path d="M150 160 C160 146 172 140 184 140" stroke="#8F6A44" stroke-width="7" fill="none" stroke-linecap="round"/>'
+ +'<g fill="#7FB069"><ellipse cx="176" cy="136" rx="12" ry="6" transform="rotate(-30 176 136)"/><ellipse cx="188" cy="144" rx="11" ry="5.5" transform="rotate(14 188 144)"/></g>'
+ +'<ellipse cx="100" cy="104" rx="52" ry="60" fill="#A97C50"/>'
+ +'<path d="M58 62 C50 40 54 28 66 22 C70 36 70 48 72 58zM142 62 C150 40 146 28 134 22 C130 36 130 48 128 58z" fill="#8F6A44"/>'
+ +'<path d="M52 96 C40 116 42 140 56 152 C60 132 60 112 58 98zM148 96 C160 116 158 140 144 152 C140 132 140 112 142 98z" fill="#8F6A44"/>'
+ +'<ellipse cx="100" cy="126" rx="34" ry="38" fill="#EBD9BC"/>'
+ +'<g stroke="#C9A876" stroke-width="2.6" fill="none"><path d="M82 112 q6 6 12 0 q6 6 12 0 q6 6 12 0"/><path d="M82 128 q6 6 12 0 q6 6 12 0 q6 6 12 0"/><path d="M86 144 q6 6 12 0 q6 6 12 0"/></g>'
+ +'<ellipse cx="100" cy="72" rx="40" ry="32" fill="#EBD9BC"/>'
+ +'<circle cx="84" cy="70" r="13" fill="#fff"/><circle cx="116" cy="70" r="13" fill="#fff"/>'
+ +'<circle cx="85" cy="72" r="7" fill="#3A2C1C"/><circle cx="115" cy="72" r="7" fill="#3A2C1C"/>'
+ +'<circle cx="87.5" cy="69" r="2.4" fill="#fff"/><circle cx="117.5" cy="69" r="2.4" fill="#fff"/>'
+ +'<path d="M94 82 L106 82 L100 92z" fill="#E9C46A"/>'
+ +'<path d="M82 162 v8 M92 163 v8 M108 163 v8 M118 162 v8" stroke="#E9C46A" stroke-width="4" stroke-linecap="round"/></svg>'},
+{id:"balloon",word:"ШАР",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<g fill="#ffffff" opacity=".85"><ellipse cx="34" cy="40" rx="22" ry="10"/><ellipse cx="168" cy="30" rx="18" ry="8"/></g>'
+ +'<path d="M100 122 C92 142 110 152 100 170 C94 181 100 190 104 196" stroke="#B08968" stroke-width="2.6" fill="none"/>'
+ +'<ellipse cx="100" cy="74" rx="47" ry="52" fill="#E05B4B"/>'
+ +'<path d="M64 44 C58 62 58 84 66 102" stroke="#F0968A" stroke-width="9" fill="none" stroke-linecap="round"/>'
+ +'<ellipse cx="78" cy="48" rx="13" ry="20" fill="#ffffff" opacity=".4" transform="rotate(-18 78 48)"/>'
+ +'<path d="M93 124 h14 l-4 9 h-6z" fill="#C94A3C"/>'
+ +'<path d="M70 108 C86 118 114 118 130 108" stroke="#C94A3C" stroke-width="3" fill="none" opacity=".55"/></svg>'},
+{id:"braid",word:"КОСА",hasSh:false,svg:'<svg viewBox="0 0 200 200">'
+ +'<path d="M62 34 C70 14 130 14 138 34 C132 48 68 48 62 34z" fill="#C98B45"/>'
+ +'<g fill="#D9A441"><ellipse cx="86" cy="52" rx="17" ry="12" transform="rotate(-32 86 52)"/><ellipse cx="114" cy="52" rx="17" ry="12" transform="rotate(32 114 52)"/></g>'
+ +'<ellipse cx="100" cy="66" rx="18" ry="12" fill="#C98B45"/>'
+ +'<g fill="#D9A441"><ellipse cx="86" cy="84" rx="16" ry="11" transform="rotate(-30 86 84)"/><ellipse cx="114" cy="84" rx="16" ry="11" transform="rotate(30 114 84)"/></g>'
+ +'<ellipse cx="100" cy="97" rx="16" ry="11" fill="#C98B45"/>'
+ +'<g fill="#D9A441"><ellipse cx="88" cy="114" rx="14" ry="10" transform="rotate(-28 88 114)"/><ellipse cx="112" cy="114" rx="14" ry="10" transform="rotate(28 112 114)"/></g>'
+ +'<ellipse cx="100" cy="126" rx="14" ry="10" fill="#C98B45"/>'
+ +'<g stroke="#B57F35" stroke-width="2" fill="none" opacity=".6"><path d="M78 46 q10 8 22 10M122 46 q-10 8-22 10M80 78 q9 7 20 9M120 78 q-9 7-20 9M82 108 q8 6 18 8M118 108 q-8 6-18 8"/></g>'
+ +'<g><path d="M100 140 C82 128 66 132 68 144 C70 156 86 156 100 148 C114 156 130 156 132 144 C134 132 118 128 100 140z" fill="#E8737A"/><circle cx="100" cy="144" r="7" fill="#D95F68"/><path d="M92 150 C88 162 88 170 92 178 L100 170 L108 178 C112 170 112 162 108 150z" fill="#E8737A"/></g></svg>'},
+{id:"bee",word:"ШМЕЛЬ",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<g stroke="#6FA05E" stroke-width="3.4" fill="none" stroke-linecap="round"><path d="M160 196 C158 184 160 176 164 168"/></g>'
+ +'<g transform="translate(164,158)"><circle cx="-9" cy="0" r="6.5" fill="#F2A9A2"/><circle cx="9" cy="0" r="6.5" fill="#F2A9A2"/><circle cx="0" cy="-9" r="6.5" fill="#F2A9A2"/><circle cx="-6" cy="8" r="6.5" fill="#F2A9A2"/><circle cx="7" cy="8" r="6.5" fill="#F2A9A2"/><circle r="4.4" fill="#F7D774"/></g>'
+ +'<g class="floaty">'
+ +'<ellipse cx="82" cy="58" rx="26" ry="13" fill="#DFF3FB" opacity=".85" transform="rotate(-26 82 58)"/>'
+ +'<ellipse cx="118" cy="54" rx="22" ry="11" fill="#DFF3FB" opacity=".7" transform="rotate(18 118 54)"/>'
+ +'<ellipse cx="100" cy="102" rx="46" ry="38" fill="#F2C14E"/>'
+ +'<path d="M78 70 C70 92 70 112 78 134 L94 138 C87 114 87 90 94 66zM112 64 C119 88 119 116 112 140 L126 134 C132 110 132 92 125 69z" fill="#4A4038"/>'
+ +'<path d="M58 92 C54 104 55 116 60 126 L70 118 C66 108 66 100 68 90z" fill="#4A4038"/>'
+ +'<circle cx="56" cy="86" r="17" fill="#4A4038"/>'
+ +'<circle cx="50" cy="82" r="4.6" fill="#fff"/><circle cx="51" cy="83" r="2.4" fill="#2E2A26"/>'
+ +'<path d="M44 96 q4 4 9 3" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+ +'<path d="M48 70 C42 60 36 56 30 55 M56 68 C54 58 56 50 60 44" stroke="#4A4038" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="29" cy="55" r="3.4" fill="#4A4038"/><circle cx="61" cy="43" r="3.4" fill="#4A4038"/>'
+ +'<path d="M80 138 l-6 14 M104 141 l0 15 M126 136 l7 13" stroke="#4A4038" stroke-width="3.6" stroke-linecap="round"/>'
+ +'<ellipse cx="128" cy="84" rx="12" ry="8" fill="#fff" opacity=".28"/></g></svg>'},
+{id:"car",word:"МАШИНА",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<rect x="8" y="150" width="184" height="14" rx="7" fill="#CFC8B8"/><path d="M22 157h26M76 157h26M130 157h26" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>'
+ +'<path d="M30 118 C32 100 44 94 62 92 L78 66 C82 58 90 55 100 55 L122 55 C132 55 139 59 144 67 L156 88 C170 92 176 100 176 112 L176 120 C176 128 170 132 162 132 L146 132 a20 20 0 0 0 -40 0 L82 132 a20 20 0 0 0 -40 0 L40 132 C32 132 28 127 30 118z" fill="#5E9CC4"/>'
+ +'<path d="M84 70 L94 60 L108 60 L108 88 L80 88zM114 60 L124 60 C130 60 135 63 138 68 L147 88 L114 88z" fill="#DFF3FB"/>'
+ +'<path d="M34 112 h138" stroke="#4A82A8" stroke-width="3"/>'
+ +'<rect x="96" y="96" width="14" height="5" rx="2.5" fill="#3E6E92"/><rect x="124" y="96" width="14" height="5" rx="2.5" fill="#3E6E92"/>'
+ +'<ellipse cx="170" cy="114" rx="7" ry="5" fill="#FFE9A8"/><ellipse cx="36" cy="114" rx="6" ry="5" fill="#E8737A"/>'
+ +'<circle cx="62" cy="134" r="19" fill="#3E4A52"/><circle cx="62" cy="134" r="9" fill="#C9D6CE"/><circle cx="62" cy="134" r="3.4" fill="#7A8B92"/>'
+ +'<circle cx="126" cy="134" r="19" fill="#3E4A52"/><circle cx="126" cy="134" r="9" fill="#C9D6CE"/><circle cx="126" cy="134" r="3.4" fill="#7A8B92"/></svg>'},
+{id:"chair",word:"СТУЛ",hasSh:false,svg:'<svg viewBox="0 0 200 200">'
+ +'<g fill="#B98A5E"><rect x="58" y="26" width="11" height="112" rx="5"/><rect x="131" y="26" width="11" height="112" rx="5"/></g>'
+ +'<circle cx="63.5" cy="24" r="8" fill="#A97C50"/><circle cx="136.5" cy="24" r="8" fill="#A97C50"/>'
+ +'<rect x="58" y="40" width="84" height="13" rx="6.5" fill="#C49A6C"/>'
+ +'<rect x="58" y="66" width="84" height="13" rx="6.5" fill="#C49A6C"/>'
+ +'<g fill="#D98C6A"><rect x="46" y="104" width="108" height="17" rx="8"/></g>'
+ +'<path d="M52 110 h96" stroke="#C06A45" stroke-width="2.6" opacity=".6"/>'
+ +'<g fill="#A97C50"><rect x="56" y="118" width="10" height="58" rx="4"/><rect x="134" y="118" width="10" height="58" rx="4"/></g>'
+ +'<rect x="56" y="146" width="88" height="8" rx="4" fill="#C49A6C"/>'
+ +'<rect x="62" y="92" width="76" height="13" rx="6.5" fill="#C49A6C" opacity=".65"/></svg>'},
+{id:"cat",word:"КОШКА",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<ellipse cx="102" cy="178" rx="62" ry="10" fill="#3E6145" opacity=".12"/>'
+ +'<path d="M142 150 C168 150 182 132 178 112 C176 100 164 98 160 106 C170 126 160 140 140 140z" fill="#E8A85C"/>'
+ +'<ellipse cx="100" cy="134" rx="44" ry="44" fill="#F0B96E"/>'
+ +'<ellipse cx="100" cy="146" rx="26" ry="30" fill="#FBEBD2"/>'
+ +'<path d="M66 118 q8 6 15 2M134 118 q-8 6-15 2M70 140 q8 5 14 1" stroke="#D98F3E" stroke-width="3.4" fill="none" stroke-linecap="round"/>'
+ +'<g><path d="M68 62 L60 32 L88 48z" fill="#F0B96E"/><path d="M132 62 L140 32 L112 48z" fill="#F0B96E"/><path d="M69 55 L65 40 L81 49z" fill="#F2A9A2"/><path d="M131 55 L135 40 L119 49z" fill="#F2A9A2"/></g>'
+ +'<circle cx="100" cy="74" r="36" fill="#F0B96E"/>'
+ +'<path d="M90 44 v9 M100 42 v10 M110 44 v9" stroke="#D98F3E" stroke-width="3.2" stroke-linecap="round"/>'
+ +'<ellipse cx="100" cy="88" rx="17" ry="12" fill="#FBEBD2"/>'
+ +'<circle cx="86" cy="72" r="6" fill="#7FB069"/><circle cx="114" cy="72" r="6" fill="#7FB069"/><ellipse cx="86" cy="72" rx="2.2" ry="4.6" fill="#2E4630"/><ellipse cx="114" cy="72" rx="2.2" ry="4.6" fill="#2E4630"/>'
+ +'<path d="M95 84 h10 l-5 6z" fill="#E8737A"/><path d="M100 90 v4 M100 94 q-4 5-9 3 M100 94 q4 5 9 3" stroke="#B57F35" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+ +'<g stroke="#C9B8A0" stroke-width="2" stroke-linecap="round"><path d="M72 84 L48 80 M73 90 L50 92 M128 84 L152 80 M127 90 L150 92"/></g>'
+ +'<path d="M72 104 Q100 114 128 104" stroke="#5E9CC4" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="100" cy="112" r="6" fill="#E9C46A" stroke="#D9A441" stroke-width="2"/>'
+ +'<ellipse cx="80" cy="172" rx="13" ry="8" fill="#F0B96E"/><ellipse cx="120" cy="172" rx="13" ry="8" fill="#F0B96E"/>'
+ +'<path d="M76 168v7M84 168v7M116 168v7M124 168v7" stroke="#D98F3E" stroke-width="2.2"/></svg>'},
+{id:"dog",word:"СОБАКА",hasSh:false,svg:'<svg viewBox="0 0 200 200">'
+ +'<ellipse cx="100" cy="180" rx="62" ry="10" fill="#3E6145" opacity=".12"/>'
+ +'<path d="M140 138 C162 130 172 112 166 96 C176 108 174 132 156 146z" fill="#C9A186"/>'
+ +'<ellipse cx="98" cy="136" rx="43" ry="42" fill="#EBD9BC"/>'
+ +'<ellipse cx="98" cy="148" rx="25" ry="29" fill="#FFF8EC"/>'
+ +'<ellipse cx="70" cy="126" rx="13" ry="18" fill="#C9A186"/>'
+ +'<path d="M60 78 C48 66 50 44 62 38 C74 44 76 62 72 80zM140 78 C152 66 150 44 138 38 C126 44 124 62 128 80z" fill="#A97C50"/>'
+ +'<circle cx="100" cy="76" r="37" fill="#EBD9BC"/>'
+ +'<ellipse cx="120" cy="62" rx="14" ry="11" fill="#C9A186"/>'
+ +'<ellipse cx="100" cy="92" rx="19" ry="14" fill="#FFF8EC"/>'
+ +'<circle cx="85" cy="72" r="5.4" fill="#3A2C1C"/><circle cx="115" cy="72" r="5.4" fill="#3A2C1C"/><circle cx="87" cy="70" r="1.8" fill="#fff"/><circle cx="117" cy="70" r="1.8" fill="#fff"/>'
+ +'<ellipse cx="100" cy="85" rx="8" ry="6" fill="#3A2C1C"/>'
+ +'<path d="M100 91 v5 M100 96 q-5 6-11 4 M100 96 q5 6 11 4" stroke="#A97C50" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+ +'<path d="M94 100 h12 v7 a6 6 0 0 1 -12 0z" fill="#F0919A"/>'
+ +'<path d="M70 108 Q98 118 126 108" stroke="#D98C6A" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="98" cy="116" r="5.6" fill="#E9C46A" stroke="#D9A441" stroke-width="2"/>'
+ +'<ellipse cx="78" cy="174" rx="13" ry="8" fill="#EBD9BC"/><ellipse cx="118" cy="174" rx="13" ry="8" fill="#EBD9BC"/>'
+ +'<path d="M74 170v7M82 170v7M114 170v7M122 170v7" stroke="#C9A186" stroke-width="2.2"/></svg>'},
+{id:"hat",word:"ШАПКА",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<path d="M44 118 C44 74 68 50 100 50 C132 50 156 74 156 118z" fill="#D98C6A"/>'
+ +'<path d="M46 96 C66 84 84 100 100 88 C116 100 134 84 154 96 L154 112 C134 100 116 116 100 104 C84 116 66 100 46 112z" fill="#FFF3DC"/>'
+ +'<path d="M52 72 C70 62 86 76 100 66 C114 76 130 62 148 72" stroke="#FFF3DC" stroke-width="7" fill="none" stroke-linecap="round"/>'
+ +'<rect x="36" y="114" width="128" height="34" rx="14" fill="#C06A45"/>'
+ +'<g stroke="#A85438" stroke-width="3.4"><path d="M54 118v26M72 118v26M90 118v26M108 118v26M126 118v26M144 118v26"/></g>'
+ +'<g fill="#FFF3DC"><circle cx="100" cy="36" r="17"/><circle cx="84" cy="44" r="11"/><circle cx="116" cy="44" r="11"/><circle cx="92" cy="24" r="10"/><circle cx="109" cy="25" r="10"/></g>'
+ +'<circle cx="100" cy="38" r="5" fill="#F6E3C8"/>'
+ +'<g fill="#A8D8EA"><path d="M30 60 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/><path d="M168 84 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4z"/></g></svg>'},
+{id:"shield",word:"ЩИТ",hasSh:false,svg:'<svg viewBox="0 0 200 200">'
+ +'<path d="M100 14 L164 30 V96 C164 140 136 168 100 184 C64 168 36 140 36 96 V30z" fill="#8FA3B8"/>'
+ +'<path d="M100 24 L154 38 V96 C154 132 130 156 100 170 C70 156 46 132 46 96 V38z" fill="#C7D6E2"/>'
+ +'<path d="M100 24 L154 38 V96 C154 132 130 156 100 170z" fill="#B9CBDD"/>'
+ +'<path d="M100 38 v112 M58 66 h84" stroke="#D98C6A" stroke-width="17"/>'
+ +'<path d="M100 38 v112 M58 66 h84" stroke="#E8A582" stroke-width="7"/>'
+ +'<circle cx="100" cy="66" r="14" fill="#E9C46A" stroke="#D9A441" stroke-width="3"/>'
+ +'<path d="M100 56 l3 6.4 7 .9 -5.2 4.8 1.4 6.9 -6.2-3.4 -6.2 3.4 1.4-6.9 -5.2-4.8 7-.9z" fill="#FFF3CF"/>'
+ +'<g fill="#7A8B92"><circle cx="52" cy="44" r="3.6"/><circle cx="148" cy="44" r="3.6"/><circle cx="52" cy="120" r="3.6"/><circle cx="148" cy="120" r="3.6"/><circle cx="100" cy="160" r="3.6"/></g>'
+ +'<path d="M56 40 C50 70 50 110 60 136" stroke="#ffffff" stroke-width="6" fill="none" opacity=".45" stroke-linecap="round"/></svg>'},
+{id:"shower",word:"ДУШ",hasSh:true,svg:'<svg viewBox="0 0 200 200">'
+ +'<g stroke="#D9EBF2" stroke-width="3"><path d="M0 50h200M0 100h200M0 150h200M50 0v200M100 0v200M150 0v200"/></g>'
+ +'<path d="M34 196 V52 C34 34 48 24 66 24 L118 24" stroke="#9FB4C2" stroke-width="11" fill="none" stroke-linecap="round"/>'
+ +'<rect x="24" y="108" width="20" height="30" rx="7" fill="#7A8B92"/><circle cx="34" cy="98" r="9" fill="#5E9CC4"/><path d="M34 89 v18 M25 98 h18" stroke="#fff" stroke-width="3"/>'
+ +'<path d="M108 24 h22 l16 26 H92z" fill="#7A8B92"/>'
+ +'<rect x="86" y="48" width="66" height="12" rx="6" fill="#5E9CC4"/>'
+ +'<g fill="#7FB6D9"><circle cx="98" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="110" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="122" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="134" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="104" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="116" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="128" cy="54" r="1.8" fill="#DFF3FB"/><circle cx="140" cy="54" r="1.8" fill="#DFF3FB"/></g>'
+ +'<g class="floaty" stroke="#7FB6D9" stroke-width="3.6" stroke-linecap="round"><path d="M94 74 v16 M108 80 v18 M122 74 v15 M136 80 v17 M100 104 v15 M116 110 v16 M130 104 v14 M94 132 v15 M110 140 v16 M126 132 v15 M140 140 v13"/></g>'
+ +'<g fill="#A8D8EA"><path d="M102 166 c4 7 4 11 0 14 c-4 -3 -4 -7 0-14z"/><path d="M132 172 c4 7 4 11 0 14 c-4 -3 -4 -7 0-14z"/><path d="M78 176 c3.4 6 3.4 9.4 0 12 c-3.4 -2.6 -3.4 -6 0-12z"/></g></svg>'}
+];
+var TOTAL_SH=PICTURES.filter(function(p){return p.hasSh;}).length; /* = 6 */
+
+/* ============================================================
+   СОСТОЯНИЕ ИГРЫ И НАВИГАЦИЯ
+   ============================================================ */
+var state={ done:[false,false,false,false,false] };
+try{
+  var saved=JSON.parse(localStorage.getItem("zmeykaShProgress")||"null");
+  if(saved && Array.isArray(saved.done) && saved.done.length===5) state.done=saved.done.map(Boolean);
+}catch(e){}
+function saveProgress(){ try{ localStorage.setItem("zmeykaShProgress",JSON.stringify(state)); }catch(e){} }
+
+var TASK_META=[
+ {n:1,title:"Артикуляционная гимнастика",desc:"Разомнём язычок вместе со Змейкой — 9 весёлых упражнений."},
+ {n:2,title:"Найди звук Ш",desc:"Раскрась только картинки, в которых слышится звук Ш."},
+ {n:3,title:"Помоги Змейке убрать листочки",desc:"Подуй на осенние листочки и расчисти дорожку."},
+ {n:4,title:"Лабиринт со звуком Ш",desc:"Веди Змейку по дорожке к домику и тяни: Ш-Ш-Ш."},
+ {n:5,title:"Змейки и их домики",desc:"Проведи каждую Змейку по тропинке в её домик."}
+];
+function taskIcon(n){
+  if(n===1) return snakeSVG({art:"fence"},"120 20 180 140");
+  if(n===2) return '<svg viewBox="0 0 100 100"><ellipse cx="38" cy="36" rx="24" ry="27" fill="#E05B4B"/><ellipse cx="30" cy="26" rx="7" ry="11" fill="#fff" opacity=".4"/><path d="M38 64 C34 74 42 80 38 92" stroke="#B08968" stroke-width="2.4" fill="none"/><text x="66" y="58" font-size="34" font-weight="800" fill="#3E6145">Ш</text><circle cx="76" cy="76" r="11" fill="#E9C46A"/><path d="M71 76 l4 4 7-8" stroke="#5C4210" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';
+  if(n===3) return '<svg viewBox="0 0 100 100"><g transform="translate(14,8) scale(1.2)">'+leafSVG("#D98C6A",1)+'</g><path d="M14 84 C34 74 60 74 88 82" stroke="#B98A5E" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="2 9"/><path d="M58 22 C70 16 82 18 90 24 M54 38 C68 32 80 34 88 39" stroke="#A8D8EA" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
+  if(n===4) return '<svg viewBox="0 0 100 100"><path d="M14 82 C34 70 22 52 42 44 C60 37 58 24 76 20" stroke="#EFDFC0" stroke-width="15" fill="none" stroke-linecap="round"/><path d="M14 82 C34 70 22 52 42 44 C60 37 58 24 76 20" stroke="#DCC9A2" stroke-width="2.4" fill="none" stroke-dasharray="1 8" stroke-linecap="round"/><g transform="translate(80,26) scale(0.21)">'+houseSVG(0,0,1,"#D98C6A",{})+'</g><circle cx="14" cy="82" r="8" fill="#7FB069"/><circle cx="11.5" cy="80" r="1.8" fill="#fff"/><circle cx="17" cy="80" r="1.8" fill="#fff"/></svg>';
+  return '<svg viewBox="0 0 100 100"><path d="M10 26 C30 16 52 34 74 22" stroke="#7FB069" stroke-width="4" fill="none" stroke-dasharray="6 5" stroke-linecap="round"/><path d="M10 52 C32 42 50 60 74 48" stroke="#4FB3A9" stroke-width="4" fill="none" stroke-dasharray="6 5" stroke-linecap="round"/><path d="M10 78 C30 68 54 86 74 74" stroke="#B5C94E" stroke-width="4" fill="none" stroke-dasharray="6 5" stroke-linecap="round"/><circle cx="10" cy="26" r="6" fill="#7FB069"/><circle cx="10" cy="52" r="6" fill="#4FB3A9"/><circle cx="10" cy="78" r="6" fill="#B5C94E"/><g><path d="M78 14 l10-8 10 8v12h-20z" fill="#D98C6A"/><path d="M78 40 l10-8 10 8v12h-20z" fill="#4FB3A9"/><path d="M78 66 l10-8 10 8v12h-20z" fill="#B5C94E"/></g></svg>';
+}
+var STAR='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.3 6 20.8l1.3-6.7-5-4.6 6.8-.8z" fill="#E9C46A" stroke="#D9A441" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+function renderProgress(){
+  document.querySelectorAll("[data-progress]").forEach(function(box){
+    var h='<span class="lbl">Задания:</span>';
+    for(var i=0;i<5;i++) h+='<span class="pstar'+(state.done[i]?" on":"")+'">'+STAR+'</span>';
+    box.innerHTML=h;
+  });
+}
+function renderMap(){
+  var g=$("map-grid"); g.innerHTML="";
+  TASK_META.forEach(function(t){
+    var b=document.createElement("button");
+    b.className="map-card"+(t.n===5?" wide":"")+(state.done[t.n-1]?" done":"");
+    b.innerHTML='<span class="num">'+t.n+'</span><span class="done-badge">✓ Готово</span>'
+      +'<span class="pic">'+taskIcon(t.n)+'</span>'
+      +'<span><h3>'+t.title+'</h3><p>'+t.desc+'</p><span class="go">'+(state.done[t.n-1]?"Играть ещё раз":"Начать →")+'</span></span>';
+    b.addEventListener("click",function(){ sndClick(); showScreen("task"+t.n); });
+    g.appendChild(b);
+  });
+  $("finish-btn-wrap").classList.toggle("show", state.done.every(Boolean));
+}
+function allDone(){ return state.done.every(Boolean); }
+function markDone(n){
+  var was=state.done[n-1];
+  state.done[n-1]=true; saveProgress(); renderProgress(); renderMap();
+  var w=$("t"+n+"-next"); if(w) w.classList.add("show");
+  if(!was && allDone()) setTimeout(function(){ showToast("Ура! Все задания выполнены!"); },600);
+}
+function refreshNextWraps(){
+  for(var n=1;n<=5;n++){ var w=$("t"+n+"-next"); if(w) w.classList.toggle("show", !!state.done[n-1]); }
+}
+var currentScreen="start";
+function showScreen(name){
+  if(currentScreen==="task3" && name!=="task3") stopMic(true);
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  var id = name==="start"?"screen-start": name==="map"?"screen-map": name==="final"?"screen-final":"screen-"+name;
+  $(id).classList.add("active");
+  currentScreen=name;
+  window.scrollTo(0,0);
+  if(name==="map") renderMap();
+  if(name==="final") buildFinalList();
+  refreshNextWraps();
+}
+function goNext(from){
+  sndClick();
+  for(var n=from+1;n<=5;n++){ if(!state.done[n-1]){ showScreen("task"+n); return; } }
+  if(allDone()){ showScreen("final"); setTimeout(function(){ burstConfetti(46); sndWin(); },350); return; }
+  for(var m=1;m<=5;m++){ if(!state.done[m-1]){ showScreen("task"+m); return; } }
+  showScreen("map");
+}
+function buildFinalList(){
+  var ul=$("final-list"); ul.innerHTML="";
+  TASK_META.forEach(function(t){
+    var li=document.createElement("li");
+    if(state.done[t.n-1]) li.className="done";
+    li.innerHTML='<span class="li-check"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5.5 5.5L20 6.5" stroke="#8FAE8B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      +'<span>'+t.n+'. '+t.title+(state.done[t.n-1]?"":" — ещё не выполнено")+'</span>';
+    ul.appendChild(li);
+  });
+}
+
+/* ============================================================
+   ЗАДАНИЕ 1 — артикуляционная гимнастика
+   ============================================================ */
+var exIndex=0, exDone=EXERCISES.map(function(){return false;});
+var PRAISE=["Продолжай, у тебя получается!","Молодец! Змейка очень довольна.","Как здорово получается!","Отлично! Язычок становится сильным.","Ты очень стараешься! Так держать!"];
+function renderExercise(){
+  var ex=EXERCISES[exIndex];
+  $("ex-scene").innerHTML=exerciseScene(ex);
+  $("ex-name").textContent=ex.name;
+  $("ex-how").textContent=ex.how;
+  $("ex-card").classList.toggle("is-done", !!exDone[exIndex]);
+  $("ex-done-btn").textContent = exDone[exIndex] ? "✓ Уже выполнено" : "Я выполнил!";
+  /* точки-прогресс */
+  var dots=$("ex-dots"); dots.innerHTML="";
+  EXERCISES.forEach(function(e,i){
+    var d=document.createElement("button");
+    d.className="ex-dot"+(i===exIndex?" current":"")+(exDone[i]?" done":"");
+    d.textContent=exDone[i]?"✓":(i+1);
+    d.setAttribute("aria-label","Упражнение "+(i+1)+": "+e.name);
+    d.addEventListener("click",function(){ exIndex=i; sndClick(); renderExercise(); });
+    dots.appendChild(d);
+  });
+  /* мини-сетка */
+  var mg=$("ex-mini-grid"); mg.innerHTML="";
+  EXERCISES.forEach(function(e,i){
+    var b=document.createElement("button");
+    b.className="ex-mini"+(i===exIndex?" current":"")+(exDone[i]?" done":"");
+    b.innerHTML="<span>"+(i+1)+". "+e.name+"</span><span class='tick'>✓ выполнено</span>";
+    b.addEventListener("click",function(){ exIndex=i; sndClick(); renderExercise(); window.scrollTo({top:0,behavior:"smooth"}); });
+    mg.appendChild(b);
+  });
+}
+function exGoto(dir){
+  exIndex=(exIndex+dir+EXERCISES.length)%EXERCISES.length;
+  sndClick(); renderExercise();
+}
+function initTask1(){
+  renderExercise();
+  $("ex-prev").addEventListener("click",function(){ exGoto(-1); });
+  $("ex-next").addEventListener("click",function(){ exGoto(1); });
+  $("ex-done-btn").addEventListener("click",function(){
+    if(exDone[exIndex]){ showToast("Это упражнение уже выполнено!"); return; }
+    exDone[exIndex]=true; sndGood();
+    var left=exDone.filter(function(x){return !x;}).length;
+    if(left===0){
+      renderExercise();
+      setFeedback("t1-feedback","Отлично! Змейка размяла язычок!");
+      $("t1-bubble").innerHTML="Ура! Язычок размялся и готов к приключениям! <b>Ш-ш-ш!</b>";
+      burstConfetti(36); sndWin(); markDone(1);
+    }else{
+      renderExercise();
+      setFeedback("t1-feedback",PRAISE[Math.floor(Math.random()*PRAISE.length)]+" Осталось упражнений: "+left+".");
+      setTimeout(function(){
+        for(var k=1;k<=EXERCISES.length;k++){ var nx=(exIndex+k)%EXERCISES.length; if(!exDone[nx]){ exIndex=nx; break; } }
+        renderExercise();
+      },900);
+    }
+  });
+}
+
+/* ============================================================
+   ЗАДАНИЕ 2 — найди звук Ш
+   ============================================================ */
+var foundSet={};
+function wordHTML(word){
+  return word.split("").map(function(ch){ return ch==="Ш"?'<span class="sh">Ш</span>':ch; }).join("");
+}
+var ICON_SPEAK='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#2E6E92"/><path d="M16 9c1.2 1.6 1.2 4.4 0 6M18.5 6.5c2.6 3.2 2.6 7.8 0 11" stroke="#2E6E92" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var HINTS={
+  owl:"Послушай слово ещё раз: с-с-сова. Тут слышится С, а не Ш.",
+  braid:"Послушай слово ещё раз: ко-с-с-са. Тут слышится С, а не Ш.",
+  chair:"Послушай слово ещё раз: с-с-стул. Тут слышится С, а не Ш.",
+  dog:"Послушай слово ещё раз: с-с-собака. Тут слышится С, а не Ш.",
+  shield:"Осторожно! В слове ЩИТ слышится мягкий Щ, а не Ш. Послушай ещё раз."
+};
+function foundCount(){ return Object.keys(foundSet).filter(function(k){return foundSet[k];}).length; }
+function updateFoundMeter(){
+  var c=foundCount();
+  $("found-text").textContent="Найдено: "+c+" из "+TOTAL_SH;
+  $("found-fill").style.width=(c/TOTAL_SH*100)+"%";
+}
+function renderPics(){
+  var grid=$("pic-grid"); grid.innerHTML="";
+  shuffle(PICTURES.slice()).forEach(function(pic){
+    var card=document.createElement("div");
+    card.className="pic-card"+(foundSet[pic.id]?" found":"");
+    card.setAttribute("role","button"); card.setAttribute("tabindex","0");
+    card.setAttribute("aria-label","Картинка: "+pic.word);
+    var sayBtn=("speechSynthesis" in window)?'<button class="say-btn" aria-label="Послушать слово '+pic.word+'">'+ICON_SPEAK+'</button>':"";
+    card.innerHTML='<span class="check"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5.5 5.5L20 6.5" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      +'<div class="pic-art">'+pic.svg+'</div><div class="word">'+wordHTML(pic.word)+'</div>'+sayBtn;
+    function choose(){
+      if(pic.hasSh){
+        if(foundSet[pic.id]){
+          delete foundSet[pic.id]; card.classList.remove("found"); sndClick();
+          setFeedback("t2-feedback","Ты убрал эту картинку. Подумай ещё: "+pic.word.toLowerCase()+"… слышится ли Ш?");
+        }else{
+          foundSet[pic.id]=true; card.classList.add("found"); sndGood();
+          setFeedback("t2-feedback","Верно! В слове «"+pic.word.toLowerCase()+"» есть звук Ш. Картинка раскрасилась!");
+        }
+        updateFoundMeter();
+        if(foundCount()===TOTAL_SH){
+          setFeedback("t2-feedback","Ты нашёл все картинки со звуком Ш! Задание выполнено!");
+          burstConfetti(38); sndWin(); markDone(2);
+        }
+      }else{
+        sndSoft();
+        card.classList.remove("wrong"); void card.offsetWidth; card.classList.add("wrong");
+        setFeedback("t2-feedback",HINTS[pic.id]||"Послушай слово ещё раз. Попробуй ещё раз!");
+        speak(pic.word.toLowerCase());
+      }
+    }
+    card.addEventListener("click",function(e){ if(e.target.closest(".say-btn")) return; choose(); });
+    card.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); choose(); } });
+    var sb=card.querySelector(".say-btn");
+    if(sb) sb.addEventListener("click",function(e){ e.stopPropagation(); speak(pic.word.toLowerCase()); });
+    grid.appendChild(card);
+  });
+  updateFoundMeter();
+}
+function initTask2(){
+  renderPics();
+  $("t2-reset").addEventListener("click",function(){
+    foundSet={}; sndClick(); renderPics();
+    setFeedback("t2-feedback","Начнём сначала! Слушай слова внимательно: где прячется Ш?");
+  });
+}
+
+/* ============================================================
+   ЗАДАНИЕ 3 — листочки: микрофон (Web Audio) + ручной режим
+   ============================================================ */
+var LEAF_COLORS=["#E0A458","#D98C6A","#C96F4A","#DDB84E","#B85C38","#E8B06E"];
+var LEAF_SPOTS=[ /* [left%, top%] вдоль дорожки */
+  [47,10],[53,22],[45,33],[55,42],[48,52],[57,60],[46,68],[54,78],[49,86]
+];
+var leaves=[]; /* {el, gone} */
+var t3Mode="choose"; /* choose | mic | manual */
+function leavesLeft(){ return leaves.filter(function(l){return !l.gone;}).length; }
+function updateLeavesLeft(){
+  var n=leavesLeft();
+  $("leaves-left").textContent = n>0 ? "Осталось листочков на дорожке: "+n : "Дорожка чистая!";
+}
+function renderLeaves(){
+  var layer=$("leaves-layer"); layer.innerHTML=""; leaves=[];
+  LEAF_SPOTS.forEach(function(pos,i){
+    var d=document.createElement("div");
+    d.className="leaf";
+    d.style.left=pos[0]+"%"; d.style.top=pos[1]+"%";
+    d.style.transform="rotate("+((i*47)%70-35)+"deg)";
+    d.style.animationDelay=(i*0.37)+"s";
+    d.innerHTML=leafSVG(LEAF_COLORS[i%LEAF_COLORS.length], i%3);
+    layer.appendChild(d);
+    leaves.push({el:d,gone:false,rot:(i*47)%70-35});
+    attachLeafDrag(leaves[leaves.length-1]);
+  });
+  updateLeavesLeft();
+}
+function leafFlyAway(leaf,dx,dy){
+  if(leaf.gone) return; leaf.gone=true; leaf.el.classList.add("gone");
+  dx=dx||220; dy=dy||-60;
+  var anim=leaf.el.animate([
+    {transform:"rotate("+leaf.rot+"deg) translate(0,0)",opacity:1},
+    {transform:"rotate("+(leaf.rot+160)+"deg) translate("+dx+"px,"+(dy-40)+"px)",opacity:1,offset:.7},
+    {transform:"rotate("+(leaf.rot+320)+"deg) translate("+(dx*1.5)+"px,"+(dy+30)+"px)",opacity:0}
+  ],{duration:950,easing:"ease-out",fill:"forwards"});
+  sndPop();
+  updateLeavesLeft();
+  if(leavesLeft()===0){
+    setTimeout(function(){
+      setFeedback("t3-feedback","Все листочки убраны! Дорожка чистая — Змейка говорит спасибо!");
+      $("t3-bubble").innerHTML="Какая чистая дорожка! Ты дул плавно и долго — настоящий ветерок! <b>Ш-ш-ш!</b>";
+      burstConfetti(36); sndWin(); markDone(3); stopMic(true); setT3Mode("choose",true);
+    },700);
+  }
+}
+/* ручное перетаскивание листочка */
+function attachLeafDrag(leaf){
+  var el=leaf.el, dragging=false, sx=0, sy=0, dx=0, dy=0;
+  el.addEventListener("pointerdown",function(e){
+    if(t3Mode!=="manual"||leaf.gone) return;
+    dragging=true; sx=e.clientX; sy=e.clientY; dx=0; dy=0;
+    el.classList.add("dragging");
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  });
+  el.addEventListener("pointermove",function(e){
+    if(!dragging) return;
+    dx=e.clientX-sx; dy=e.clientY-sy;
+    el.style.transform="rotate("+leaf.rot+"deg) translate("+dx+"px,"+dy+"px)";
+    e.preventDefault();
+  });
+  function endDrag(){
+    if(!dragging) return; dragging=false; el.classList.remove("dragging");
+    var dist=Math.hypot(dx,dy);
+    if(dist>55){
+      var k=240/dist;
+      el.style.transform="rotate("+leaf.rot+"deg)";
+      leafFlyAway(leaf, dx*k, dy*k-30);
+    }else{
+      el.style.transition="transform .35s ease";
+      el.style.transform="rotate("+leaf.rot+"deg) translate(0,0)";
+      setTimeout(function(){ el.style.transition=""; },380);
+      if(dist>8) setFeedback("t3-feedback","Проведи пальцем по листочку сильнее — сдвинь его с дорожки!");
+    }
+  }
+  el.addEventListener("pointerup",endDrag);
+  el.addEventListener("pointercancel",endDrag);
+}
+function setT3Mode(mode,silent){
+  t3Mode=mode;
+  $("t3-mode-panel").classList.toggle("hidden", mode!=="choose");
+  $("mic-meter-wrap").classList.toggle("show", mode==="mic");
+  $("t3-manual-controls").classList.toggle("hidden", mode!=="manual");
+  if(mode==="manual" && !silent){
+    $("t3-bubble").innerHTML="Делай спокойный <b>вдох носом</b>, а потом плавно дуй и <b>сдвигай листочки пальцем</b> с дорожки — вот так: ф-ф-ф…";
+    setFeedback("t3-feedback","Коснись листочка и проведи пальцем в сторону!");
+  }
+  if(mode==="mic" && !silent){
+    $("t3-bubble").innerHTML="Микрофон слушает твой ветерок! <b>Вдохни носом</b> и дуй плавно и долго: ф-ф-ф…";
+  }
+}
+/* --- Микрофон: анализ уровня звука через Web Audio API ---
+   Настраиваемые параметры чувствительности: */
+var MIC_CFG={ calibMs:1200, threshMul:2.4, threshMin:0.016, threshMax:0.12, blowSecondsPerLeaf:0.85, smooth:0.34 };
+var mic={ stream:null, ctx:null, analyser:null, raf:0, smoothed:0, noise:0, threshold:0.03, calibUntil:0, calibSum:0, calibN:0, blowAcc:0, lastT:0, on:false };
+function startMic(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    micUnavailable("Этот браузер не даёт доступ к микрофону для файла на устройстве.");
+    return;
+  }
+  setFeedback("t3-feedback","Запрашиваем микрофон… Нажми «Разрешить».");
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})
+  .then(function(stream){
+    mic.stream=stream;
+    mic.ctx=new (window.AudioContext||window.webkitAudioContext)();
+    var src=mic.ctx.createMediaStreamSource(stream);
+    mic.analyser=mic.ctx.createAnalyser(); mic.analyser.fftSize=1024;
+    src.connect(mic.analyser);
+    mic.on=true; mic.smoothed=0; mic.blowAcc=0; mic.calibSum=0; mic.calibN=0;
+    mic.calibUntil=performance.now()+MIC_CFG.calibMs; mic.lastT=performance.now();
+    setT3Mode("mic");
+    $("mic-status").textContent="Тихо… слушаем комнату (калибровка)…";
+    sndGood();
+    micLoop();
+  })
+  .catch(function(err){
+    micUnavailable("Не удалось включить микрофон"+(err&&err.name==="NotAllowedError"?" — доступ запрещён.":""));
+  });
+}
+function micUnavailable(reason){
+  setT3Mode("choose",true);
+  setFeedback("t3-feedback",reason+" Не беда! Нажми «Продолжить без микрофона» и сдвигай листочки пальцем, не забывая дуть по-настоящему.");
+  showToast("Микрофон недоступен — есть ручной режим");
+  sndSoft();
+}
+function stopMic(silent){
+  if(mic.raf) cancelAnimationFrame(mic.raf); mic.raf=0;
+  if(mic.stream){ mic.stream.getTracks().forEach(function(t){t.stop();}); mic.stream=null; }
+  if(mic.ctx){ try{ mic.ctx.close(); }catch(e){} mic.ctx=null; }
+  mic.on=false;
+  $("wind-lines").classList.remove("on");
+  $("mic-meter").classList.remove("blowing");
+  if(!silent && t3Mode==="mic") setT3Mode("choose",true);
+}
+function micLoop(){
+  if(!mic.on) return;
+  mic.raf=requestAnimationFrame(micLoop);
+  var now=performance.now(), dt=Math.min(0.1,(now-mic.lastT)/1000); mic.lastT=now;
+  var buf=new Float32Array(mic.analyser.fftSize);
+  if(mic.analyser.getFloatTimeDomainData) mic.analyser.getFloatTimeDomainData(buf);
+  else{ var b=new Uint8Array(mic.analyser.fftSize); mic.analyser.getByteTimeDomainData(b); for(var i=0;i<b.length;i++) buf[i]=(b[i]-128)/128; }
+  var sum=0; for(var j=0;j<buf.length;j++) sum+=buf[j]*buf[j];
+  var rms=Math.sqrt(sum/buf.length);
+  mic.smoothed=(1-MIC_CFG.smooth)*mic.smoothed + MIC_CFG.smooth*rms;
+  /* калибровка фонового шума */
+  if(now<mic.calibUntil){
+    mic.calibSum+=rms; mic.calibN++;
+    $("mic-fill").style.width=clamp(mic.smoothed*900,0,100)+"%";
+    return;
+  }
+  if(mic.calibN>0){
+    mic.noise=mic.calibSum/mic.calibN;
+    mic.threshold=clamp(mic.noise*MIC_CFG.threshMul, MIC_CFG.threshMin, MIC_CFG.threshMax);
+    mic.calibN=0;
+    $("mic-status").textContent="Микрофон включён. Вдохни носом и плавно дуй!";
+  }
+  var blow=mic.smoothed>mic.threshold;
+  $("mic-fill").style.width=clamp(mic.smoothed/(mic.threshold*3)*100,0,100)+"%";
+  $("mic-meter").classList.toggle("blowing",blow);
+  $("wind-lines").classList.toggle("on",blow);
+  if(blow){
+    mic.blowAcc+=dt;
+    if(mic.blowAcc>=MIC_CFG.blowSecondsPerLeaf){
+      mic.blowAcc=0;
+      var next=leaves.filter(function(l){return !l.gone;})[0];
+      if(next) leafFlyAway(next, 200+Math.random()*120, -40-Math.random()*70);
+    }
+  }else{
+    mic.blowAcc=Math.max(0,mic.blowAcc-dt*1.6);
+  }
+}
+function initTask3(){
+  buildLeavesBg(); renderLeaves();
+  $("btn-mic-on").addEventListener("click",function(){ sndClick(); startMic(); });
+  $("btn-to-mic").addEventListener("click",function(){ sndClick(); startMic(); });
+  $("btn-manual").addEventListener("click",function(){ sndClick(); setT3Mode("manual"); });
+  $("btn-to-manual").addEventListener("click",function(){ sndClick(); stopMic(true); setT3Mode("manual"); });
+  $("btn-mic-off").addEventListener("click",function(){ sndClick(); stopMic(false); setFeedback("t3-feedback","Микрофон выключен. Выбери, как играть дальше."); });
+  $("t3-reset").addEventListener("click",function(){
+    sndClick(); renderLeaves();
+    setFeedback("t3-feedback","Листочки снова на дорожке! Вдохни носом и плавно дуй.");
+    if(t3Mode==="choose") $("t3-bubble").innerHTML="Осенью в саду опали листочки. Помоги мне убрать их с дорожки! Сделай спокойный <b>вдох носом</b> и плавно <b>подуй</b> на листочки: ф-ф-ф…";
+  });
+}
+
+/* ============================================================
+   ДВИЖОК «ВЕДИ ПО ДОРОЖКЕ» (задания 4 и 5)
+   Змейка движется только по маршруту; при сходе с дорожки
+   возвращается к ближайшей контрольной точке без штрафов.
+   ============================================================ */
+function crawlSnakeSVG(body,dark,light){
+  return '<g style="transform-box:fill-box;transform-origin:center" class="sn-tongue-always">'
+    +'<path d="M-56 2 C-44 -10 -32 10 -20 1 C-11 -5 -4 4 4 1" stroke="'+body+'" stroke-width="15" fill="none" stroke-linecap="round"/>'
+    +'<path d="M-56 2 C-44 -10 -32 10 -20 1" stroke="'+dark+'" stroke-width="15" fill="none" stroke-linecap="round" stroke-dasharray="4 13" opacity=".45"/>'
+    +'<ellipse cx="17" cy="0" rx="16.5" ry="13" fill="'+body+'"/>'
+    +'<ellipse cx="21" cy="-3" rx="9" ry="6" fill="'+light+'" opacity=".8"/>'
+    +'<circle cx="24" cy="-5.5" r="4.6" fill="#fff"/><circle cx="24" cy="5.5" r="4.6" fill="#fff"/>'
+    +'<circle cx="25.6" cy="-5.5" r="2.3" fill="#2E4630"/><circle cx="25.6" cy="5.5" r="2.3" fill="#2E4630"/>'
+    +'<path d="M33 0 L42 0 M42 0 L49 -4.5 M42 0 L49 4.5" stroke="#E0586A" stroke-width="2.7" fill="none" stroke-linecap="round"/></g>';
+}
+function createFollower(cfg){
+  var svg=cfg.svg, path=cfg.path, prog=cfg.progPath, snake=cfg.snake;
+  var total=path.getTotalLength();
+  var N=Math.max(120,Math.floor(total/3));
+  var pts=[];
+  for(var i=0;i<=N;i++){
+    var p=path.getPointAtLength(total*i/N);
+    var p2=path.getPointAtLength(total*Math.min(N,i+1)/N);
+    var p0=path.getPointAtLength(total*Math.max(0,i-1)/N);
+    pts.push({x:p.x,y:p.y,ang:Math.atan2(p2.y-p0.y,p2.x-p0.x)*180/Math.PI});
+  }
+  if(prog){ prog.style.strokeDasharray=total; prog.style.strokeDashoffset=total; }
+  var F={ progress:0, checkpoint:0, dragging:false, finished:false,
+    tol:cfg.tol||42, grabR:cfg.grabR||100,
+    ckStep:Math.max(10,Math.floor(N*0.16)), pts:pts, total:total };
+  function place(idx){
+    var p=pts[clamp(idx,0,N)];
+    snake.setAttribute("transform","translate("+p.x+","+p.y+") rotate("+p.ang+")");
+    if(prog) prog.style.strokeDashoffset=total*(1-F.progress/N);
+  }
+  F.place=place;
+  F.currentPos=function(){ return pts[F.progress]; };
+  F.reset=function(){ F.progress=0; F.checkpoint=0; F.dragging=false; F.finished=false; snake.style.opacity="1"; place(0); };
+  function toSVG(e){
+    var r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x: vb.x + (e.clientX-r.left)/r.width*vb.width,
+             y: vb.y + (e.clientY-r.top)/r.height*vb.height };
+  }
+  F.toSVG=toSVG;
+  svg.addEventListener("pointerdown",function(e){
+    if(F.finished || (cfg.enabled && !cfg.enabled())) return;
+    var pos=toSVG(e), cur=pts[F.progress];
+    if(Math.hypot(pos.x-cur.x,pos.y-cur.y) <= F.grabR){
+      F.dragging=true;
+      try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+      e.preventDefault();
+    }else if(cfg.onMissGrab){ cfg.onMissGrab(); }
+  });
+  svg.addEventListener("pointermove",function(e){
+    if(!F.dragging || F.finished) return;
+    e.preventDefault();
+    var pos=toSVG(e);
+    var lo=Math.max(0,F.progress-50), hi=Math.min(N,F.progress+60);
+    var best=-1,bestD=1e9;
+    for(var i=lo;i<=hi;i++){ var d=Math.hypot(pos.x-pts[i].x,pos.y-pts[i].y); if(d<bestD){bestD=d;best=i;} }
+    if(bestD>F.tol){
+      F.dragging=false; F.progress=F.checkpoint; place(F.progress);
+      if(cfg.onOfftrack) cfg.onOfftrack();
+      return;
+    }
+    if(best>F.progress){
+      F.progress=best;
+      F.checkpoint=Math.floor(F.progress/F.ckStep)*F.ckStep;
+    }
+    place(best);
+    if(F.progress>=N-2){
+      F.dragging=false; F.finished=true; place(N);
+      if(cfg.onFinish) cfg.onFinish(F);
+    }
+  });
+  function stopDrag(){ if(F.dragging){ F.dragging=false; place(F.progress); } }
+  svg.addEventListener("pointerup",stopDrag);
+  svg.addEventListener("pointercancel",stopDrag);
+  place(0);
+  return F;
+}
+/* Плавное «заползание» Змейки в домик */
+function crawlIntoHouse(snakeEl,from,to,done){
+  var t0=performance.now(), dur=850;
+  function frame(t){
+    var k=clamp((t-t0)/dur,0,1), e=1-Math.pow(1-k,2);
+    var x=from.x+(to.x-from.x)*e, y=from.y+(to.y-from.y)*e;
+    snakeEl.setAttribute("transform","translate("+x+","+y+") rotate("+from.ang+") scale("+(1-0.55*e)+")");
+    snakeEl.style.opacity=String(1-e*0.95);
+    if(k<1) requestAnimationFrame(frame); else if(done) done();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   ЗАДАНИЕ 4 — лабиринт
+   ============================================================ */
+var maze=null, mazeInited=false;
+var MAZE_D="M82 462 C 196 432, 216 352, 132 300 C 58 254, 122 178, 232 173 C 334 169, 322 252, 412 286 C 502 320, 562 258, 520 183 C 489 127, 562 96, 638 118";
+function buildMazeScene(){
+  var decor = bushSVG(52,66,0.95)+bushSVG(300,52,0.8)+bushSVG(742,452,1)+bushSVG(60,392,0.75)+bushSVG(700,300,0.8)+bushSVG(330,492,0.85)
+    + flowerSVG(180,92,"#F2A9A2",1)+flowerSVG(452,120,"#ffffff",0.95)+flowerSVG(620,420,"#B7A6E8",1)+flowerSVG(150,492,"#F7C8D8",1.05)+flowerSVG(560,66,"#F2A9A2",0.9)
+    + grassTuft(250,330,1.1)+grassTuft(660,208,1)+grassTuft(430,430,1.15)+grassTuft(96,140,1)
+    + '<g fill="#B9B4A4"><ellipse cx="250" cy="420" rx="16" ry="9"/><ellipse cx="590" cy="340" rx="13" ry="8"/><ellipse cx="386" cy="96" rx="12" ry="7"/></g>';
+  return '<svg id="maze-svg" viewBox="0 0 800 540" role="img" aria-label="Садовый лабиринт">'
+    +'<defs><linearGradient id="grassG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE0AC"/><stop offset="1" stop-color="#9CC98B"/></linearGradient></defs>'
+    +'<rect width="800" height="540" fill="url(#grassG)"/>'
+    +'<g fill="#A9D195" opacity=".55"><ellipse cx="150" cy="120" rx="130" ry="60"/><ellipse cx="640" cy="420" rx="150" ry="70"/><ellipse cx="430" cy="240" rx="110" ry="52"/></g>'
+    +'<circle id="maze-glow" class="house-glow" cx="700" cy="128" r="86" fill="#F9DE8B" opacity="0"/>'
+    +'<path d="'+MAZE_D+'" stroke="#C9A876" stroke-width="68" fill="none" stroke-linecap="round"/>'
+    +'<path d="'+MAZE_D+'" stroke="#F2E3C2" stroke-width="57" fill="none" stroke-linecap="round"/>'
+    +'<path id="maze-prog" d="'+MAZE_D+'" stroke="#EFCE8F" stroke-width="57" fill="none" stroke-linecap="round" opacity=".85"/>'
+    +'<path d="'+MAZE_D+'" stroke="#D8BE92" stroke-width="3.4" fill="none" stroke-dasharray="2 15" stroke-linecap="round"/>'
+    + decor
+    + '<g><rect x="58" y="402" width="8" height="40" rx="3" fill="#9A7150"/><g transform="rotate(-5 62 402)"><rect x="26" y="380" width="76" height="26" rx="8" fill="#B98A5E" stroke="#8F6A44" stroke-width="2"/><text x="64" y="398" text-anchor="middle" font-size="15" font-weight="700" fill="#FFF6E3">Старт</text></g></g>'
+    + houseSVG(704,176,1.02,"#D98C6A",{sign:"Домик Змейки",doorId:"maze-door"})
+    + '<path id="maze-path" d="'+MAZE_D+'" stroke="none" fill="none"/>'
+    + '<circle id="maze-hint" cx="82" cy="462" r="30" fill="none" stroke="#E9C46A" stroke-width="4"><animate attributeName="r" values="26;40;26" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.95;0.25;0.95" dur="1.8s" repeatCount="indefinite"/></circle>'
+    + '<g id="maze-snake" class="crawl-snake">'+crawlSnakeSVG("#7FB069","#557D43","#DDF0C8")+'</g>'
+    + '</svg>';
+}
+function mazeReset(){
+  if(!maze) return;
+  maze.reset();
+  var d=$("maze-door"); if(d) d.classList.remove("open");
+  var g=$("maze-glow"); if(g){ g.classList.remove("on"); g.setAttribute("opacity","0"); }
+  var h=$("maze-hint"); if(h) h.style.display="";
+  setFeedback("t4-feedback","Нажми на Змейку и веди её по дорожке к домику! И тяни: Ш-Ш-Ш…");
+}
+function initTask4(){
+  if(mazeInited) return; mazeInited=true;
+  $("maze-frame").innerHTML=buildMazeScene();
+  maze=createFollower({
+    svg:$("maze-svg"), path:$("maze-path"), progPath:$("maze-prog"), snake:$("maze-snake"),
+    tol:42, grabR:105,
+    onMissGrab:function(){ setFeedback("t4-feedback","Сначала нажми прямо на Змейку — и веди её, не отпуская!"); },
+    onOfftrack:function(){ sndSoft(); setFeedback("t4-feedback","Ой, Змейка сошла с дорожки! Попробуй ещё раз — веди плавнее и тяни: Ш-Ш-Ш…"); },
+    onFinish:function(F){
+      var h=$("maze-hint"); if(h) h.style.display="none";
+      var d=$("maze-door"); if(d) d.classList.add("open");
+      var g=$("maze-glow"); if(g){ g.classList.add("on"); g.setAttribute("opacity","0.55"); }
+      crawlIntoHouse($("maze-snake"), F.currentPos(), {x:724,y:158}, null);
+      setFeedback("t4-feedback","Ура! Змейка добралась до домика! Ш-Ш-Ш!");
+      burstConfetti(40); sndWin(); markDone(4);
+    }
+  });
+  var svgEl=$("maze-svg");
+  svgEl.addEventListener("pointerdown",function(){ var h=$("maze-hint"); if(h && maze.progress>4) h.style.display="none"; });
+}
+
+/* ============================================================
+   ЗАДАНИЕ 5 — три Змейки и три домика
+   ============================================================ */
+var ROUTES=[
+ {name:"Зелёная Змейка", body:"#7FB069", dark:"#557D43", light:"#DDF0C8", roof:"#7FA96E", y:118,
+  d:"M82 118 C 200 68, 300 162, 420 110 C 500 76, 562 122, 642 106", house:{x:706,y:148}, doorPos:{x:726,y:132}},
+ {name:"Бирюзовая Змейка", body:"#4FB3A9", dark:"#2E7E78", light:"#CDEEEA", roof:"#3FA8A0", y:288,
+  d:"M82 288 C 192 340, 282 230, 402 286 C 492 328, 562 248, 642 278", house:{x:706,y:318}, doorPos:{x:726,y:302}},
+ {name:"Жёлто-зелёная Змейка", body:"#B5C94E", dark:"#84962F", light:"#F0F3C8", roof:"#A9BE45", y:458,
+  d:"M82 458 C 200 408, 310 502, 430 454 C 512 424, 572 472, 642 450", house:{x:706,y:488}, doorPos:{x:726,y:472}}
+];
+var routeFollowers=[], routeDone=[false,false,false], activeRoute=0, routesInited=false;
+function buildRoutesScene(){
+  var s='<svg id="routes-svg" viewBox="0 0 800 560" role="img" aria-label="Три тропинки к домикам">'
+    +'<defs><linearGradient id="grassG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE0AC"/><stop offset="1" stop-color="#9CC98B"/></linearGradient></defs>'
+    +'<rect width="800" height="560" fill="url(#grassG2)"/>'
+    +'<g fill="#A9D195" opacity=".5"><ellipse cx="200" cy="205" rx="150" ry="46"/><ellipse cx="520" cy="378" rx="160" ry="48"/><ellipse cx="380" cy="36" rx="170" ry="40"/></g>';
+  /* дорожки */
+  ROUTES.forEach(function(r,i){
+    s+='<circle id="rglow-'+i+'" class="house-glow" cx="'+r.house.x+'" cy="'+(r.house.y-46)+'" r="70" fill="#F9DE8B" opacity="0"/>'
+      +'<path d="'+r.d+'" stroke="'+r.body+'" stroke-width="53" fill="none" stroke-linecap="round" opacity=".38"/>'
+      +'<path d="'+r.d+'" stroke="#F2E3C2" stroke-width="44" fill="none" stroke-linecap="round"/>'
+      +'<path id="rprog-'+i+'" d="'+r.d+'" stroke="#EFCE8F" stroke-width="44" fill="none" stroke-linecap="round" opacity=".85"/>'
+      +'<path d="'+r.d+'" stroke="'+r.dark+'" stroke-width="3.2" fill="none" stroke-dasharray="2 14" stroke-linecap="round" opacity=".65"/>';
+  });
+  s+= bushSVG(238,205,0.85)+bushSVG(520,378,0.9)+bushSVG(392,32,0.75)+bushSVG(120,532,0.8)+bushSVG(660,205,0.8)
+    + flowerSVG(340,200,"#F2A9A2",0.95)+flowerSVG(610,372,"#ffffff",0.95)+flowerSVG(180,376,"#B7A6E8",0.9)+flowerSVG(470,28,"#F7C8D8",0.9)
+    + grassTuft(300,540,1.05)+grassTuft(96,208,1)+grassTuft(720,540,1);
+  ROUTES.forEach(function(r,i){
+    s+= houseSVG(r.house.x, r.house.y, 0.8, r.roof, {doorId:"rdoor-"+i})
+      + '<path id="rpath-'+i+'" d="'+r.d+'" stroke="none" fill="none"/>'
+      + '<g id="rsnake-'+i+'" class="crawl-snake">'+crawlSnakeSVG(r.body,r.dark,r.light)+'</g>'
+      + '<g id="rtick-'+i+'" style="display:none"><circle cx="'+(r.house.x+46)+'" cy="'+(r.house.y-96)+'" r="17" fill="#7FA96E" stroke="#fff" stroke-width="3"/><path d="M'+(r.house.x+37)+' '+(r.house.y-96)+' l7 7 l13-14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>';
+  });
+  s+='</svg>';
+  return s;
+}
+function renderRouteChips(){
+  var box=$("route-chips"); box.innerHTML="";
+  ROUTES.forEach(function(r,i){
+    var b=document.createElement("button");
+    b.className="route-chip"+(i===activeRoute&&!routeDone[i]?" active":"")+(routeDone[i]?" done":"");
+    b.innerHTML='<span class="swatch" style="background:'+r.body+'"></span><span>'+r.name+'</span><span class="tick">✓ дома</span>';
+    b.addEventListener("click",function(){
+      if(routeDone[i]){ showToast(r.name+" уже дома!"); return; }
+      activeRoute=i; sndClick(); renderRouteChips();
+      setFeedback("t5-feedback","Веди её: "+r.name+" — и тяни: Ш-Ш-Ш…");
+    });
+    box.appendChild(b);
+  });
+}
+function routesReset(){
+  routeDone=[false,false,false]; activeRoute=0;
+  routeFollowers.forEach(function(f){ if(f) f.reset(); });
+  ROUTES.forEach(function(r,i){
+    var d=$("rdoor-"+i); if(d) d.classList.remove("open");
+    var t=$("rtick-"+i); if(t) t.style.display="none";
+    var g=$("rglow-"+i); if(g){ g.classList.remove("on"); g.setAttribute("opacity","0"); }
+    var sn=$("rsnake-"+i); if(sn) sn.style.opacity="1";
+  });
+  renderRouteChips();
+  setFeedback("t5-feedback","Выбери Змейку и проведи её домой! Не забывай: Ш-Ш-Ш…");
+}
+function initTask5(){
+  if(routesInited) return; routesInited=true;
+  $("routes-frame").innerHTML=buildRoutesScene();
+  var svgEl=$("routes-svg");
+  /* выбор Змейки касанием — слушатель добавляется ПЕРВЫМ, до фолловеров */
+  svgEl.addEventListener("pointerdown",function(e){
+    var r=svgEl.getBoundingClientRect(), vb=svgEl.viewBox.baseVal;
+    var pos={x:vb.x+(e.clientX-r.left)/r.width*vb.width, y:vb.y+(e.clientY-r.top)/r.height*vb.height};
+    var best=-1,bestD=1e9;
+    routeFollowers.forEach(function(f,i){
+      if(!f||routeDone[i]) return;
+      var p=f.currentPos(), d=Math.hypot(pos.x-p.x,pos.y-p.y);
+      if(d<bestD){bestD=d;best=i;}
+    });
+    if(best>=0 && bestD<=105 && best!==activeRoute){
+      activeRoute=best; renderRouteChips();
+      setFeedback("t5-feedback","Веди её: "+ROUTES[best].name+" — и тяни: Ш-Ш-Ш…");
+    }
+  });
+  ROUTES.forEach(function(r,i){
+    routeFollowers[i]=createFollower({
+      svg:svgEl, path:$("rpath-"+i), progPath:$("rprog-"+i), snake:$("rsnake-"+i),
+      tol:38, grabR:105,
+      enabled:function(){ return activeRoute===i && !routeDone[i]; },
+      onOfftrack:function(){ sndSoft(); setFeedback("t5-feedback","Ой, сошла с тропинки! Попробуй ещё раз — плавнее веди и тяни: Ш-Ш-Ш…"); },
+      onFinish:function(F){
+        routeDone[i]=true;
+        var d=$("rdoor-"+i); if(d) d.classList.add("open");
+        var t=$("rtick-"+i); if(t) t.style.display="";
+        var g=$("rglow-"+i); if(g){ g.classList.add("on"); g.setAttribute("opacity","0.55"); }
+        crawlIntoHouse($("rsnake-"+i), F.currentPos(), ROUTES[i].doorPos, null);
+        if(routeDone.every(Boolean)){
+          setFeedback("t5-feedback","Все Змейки дома! Ш-Ш-Ш! Задание выполнено!");
+          burstConfetti(46); sndWin(); markDone(5);
+        }else{
+          sndGood();
+          setFeedback("t5-feedback",ROUTES[i].name+" — дома! Молодец! Осталось провести: "+routeDone.filter(function(x){return !x;}).length+".");
+          for(var k=0;k<3;k++){ if(!routeDone[k]){ activeRoute=k; break; } }
+          setTimeout(renderRouteChips,60);
+        }
+        renderRouteChips();
+      }
+    });
+  });
+  renderRouteChips();
+}
+
+/* Подключаем «ленивую» инициализацию лабиринтов при первом открытии экрана
+   (геометрию SVG надёжно считать только когда экран виден). */
+var _showScreen=showScreen;
+showScreen=function(name){
+  _showScreen(name);
+  if(name==="task4") initTask4();
+  if(name==="task5") initTask5();
+};
+
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ ИГРЫ
+   ============================================================ */
+function resetWholeGame(){
+  state.done=[false,false,false,false,false]; saveProgress();
+  exDone=EXERCISES.map(function(){return false;}); exIndex=0; renderExercise();
+  setFeedback("t1-feedback",""); $("t1-bubble").innerHTML="Сначала разомнём язычок! Делай упражнения вместе со мной — и нажимай <b>«Я выполнил!»</b>.";
+  foundSet={}; renderPics(); setFeedback("t2-feedback","");
+  stopMic(true); setT3Mode("choose",true); renderLeaves(); setFeedback("t3-feedback","");
+  $("t3-bubble").innerHTML="Осенью в саду опали листочки. Помоги мне убрать их с дорожки! Сделай спокойный <b>вдох носом</b> и плавно <b>подуй</b> на листочки: ф-ф-ф…";
+  if(mazeInited) mazeReset();
+  if(routesInited) routesReset();
+  renderProgress(); renderMap(); refreshNextWraps();
+}
+function initGame(){
+  buildStartHero();
+  buildFinalScene();
+  document.querySelectorAll("[data-helper-snake]").forEach(function(el){ el.innerHTML=snakeSVG({emotion:"happy"}); });
+  $("modal-snake").innerHTML=snakeSVG({mouth:"open",tongue:"fork",tongueClass:"sn-tongue-always"});
+  refreshSoundButtons();
+  renderProgress(); renderMap();
+  initTask1(); initTask2(); initTask3();
+
+  $("btn-start").addEventListener("click",function(){ sndClick(); showScreen("map"); });
+  $("btn-map-home").addEventListener("click",function(){ sndClick(); showScreen("start"); });
+  $("btn-to-final").addEventListener("click",function(){ sndWin(); showScreen("final"); setTimeout(function(){ burstConfetti(46); },350); });
+  $("btn-play-again").addEventListener("click",function(){ sndClick(); resetWholeGame(); showScreen("map"); showToast("Новая игра! Приключение начинается сначала."); });
+  $("t4-reset").addEventListener("click",function(){ sndClick(); mazeReset(); });
+  $("t5-reset").addEventListener("click",function(){ sndClick(); routesReset(); });
+
+  document.querySelectorAll("[data-goto]").forEach(function(b){
+    b.addEventListener("click",function(){ sndClick(); showScreen(b.getAttribute("data-goto")); });
+  });
+  document.querySelectorAll("[data-next]").forEach(function(b){
+    b.addEventListener("click",function(){ goNext(parseInt(b.getAttribute("data-next"),10)); });
+  });
+
+  /* модальное окно «Как шипит Змейка?» */
+  var modal=$("modal-hiss");
+  $("btn-how-hiss").addEventListener("click",function(){ sndClick(); modal.classList.add("show"); speak("Ш-ш-ш"); });
+  $("btn-hiss-close").addEventListener("click",function(){ sndClick(); modal.classList.remove("show"); });
+  modal.addEventListener("click",function(e){ if(e.target===modal) modal.classList.remove("show"); });
+
+  /* защита от случайных свайпов/выделения на игровых полях */
+  document.addEventListener("contextmenu",function(e){
+    if(e.target.closest && e.target.closest(".leaves-scene,.maze-frame,.pic-card")) e.preventDefault();
+  });
+  document.addEventListener("dragstart",function(e){ e.preventDefault(); });
+  refreshNextWraps();
+}
+document.addEventListener("DOMContentLoaded",initGame);
+</script>
+</body>
+</html>
+/script>
+</body>
+</html>
